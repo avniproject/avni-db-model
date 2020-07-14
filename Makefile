@@ -10,3 +10,6 @@ generate-db-dump:
 
 generate-dbml:
 	sql2dbml dump.sql --postgres -o avni.dbml
+
+create-dbdocs-view:
+	dbdocs build ./avni.dbml
