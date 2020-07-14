@@ -1,2 +1,2 @@
-# avni-db-model
-DBML generation from Avni database
+# About
+DBML generation from Avni database model
