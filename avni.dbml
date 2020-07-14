@@ -1,0 +1,903 @@
+Table "account" {
+  "id" integer [not null]
+  "name" "character varying(255)" [not null]
+}
+
+Table "account_admin" {
+  "id" integer [not null]
+  "name" "character varying(255)" [not null]
+  "account_id" integer [not null]
+  "admin_id" integer [not null]
+}
+
+Table "address_level" {
+  "id" integer [not null]
+  "title" "character varying(255)" [not null]
+  "uuid" "character varying(255)" [not null]
+  "version" integer [not null]
+  "organisation_id" integer [not null, default: 1]
+  "audit_id" integer
+  "is_voided" boolean [not null, default: false]
+  "type_id" integer
+  "lineage" ltree
+  "parent_id" integer
+}
+
+Table "address_level_type" {
+  "id" integer [not null]
+  "uuid" "character varying(255)" [not null, default: `uuid_generate_v4()`]
+  "name" "character varying(255)" [not null]
+  "is_voided" boolean [not null, default: false]
+  "organisation_id" integer [not null]
+  "version" integer [not null]
+  "audit_id" integer
+  "level" double
+  "parent_id" integer
+}
+
+Table "organisation" {
+  "id" integer [not null]
+  "name" "character varying(255)" [not null]
+  "db_user" "character varying(255)" [not null]
+  "uuid" "character varying(255)" [not null]
+  "parent_organisation_id" integer
+  "is_voided" boolean [not null, default: false]
+  "media_directory" text
+  "username_suffix" text
+  "account_id" integer [not null, default: 1]
+}
+
+Table "form" {
+  "id" integer [not null]
+  "name" "character varying(255)"
+  "form_type" "character varying(255)" [not null]
+  "uuid" "character varying(255)" [not null]
+  "version" integer [not null]
+  "organisation_id" integer [not null, default: 1]
+  "audit_id" integer
+  "is_voided" boolean [not null, default: false]
+  "decision_rule" text
+  "validation_rule" text
+  "visit_schedule_rule" text
+  "checklists_rule" text
+}
+
+Table "form_mapping" {
+  "id" integer [not null]
+  "form_id" bigint
+  "uuid" "character varying(255)" [not null]
+  "version" integer [not null]
+  "entity_id" bigint
+  "observations_type_entity_id" integer
+  "organisation_id" integer [not null, default: 1]
+  "audit_id" integer
+  "is_voided" boolean [not null, default: false]
+  "subject_type_id" integer [not null]
+}
+
+Table "operational_encounter_type" {
+  "id" integer [not null]
+  "uuid" "character varying(255)" [not null]
+  "organisation_id" integer [not null]
+  "encounter_type_id" integer [not null]
+  "version" integer [not null]
+  "audit_id" integer
+  "name" "character varying(255)"
+  "is_voided" boolean [not null, default: false]
+}
+
+Table "operational_program" {
+  "id" integer [not null]
+  "uuid" "character varying(255)" [not null]
+  "organisation_id" integer [not null]
+  "program_id" integer [not null]
+  "version" integer [not null]
+  "audit_id" integer
+  "name" "character varying(255)"
+  "is_voided" boolean [not null, default: false]
+  "program_subject_label" text
+}
+
+Table "concept" {
+  "id" integer [not null]
+  "data_type" "character varying(255)" [not null]
+  "high_absolute" double
+  "high_normal" double
+  "low_absolute" double
+  "low_normal" double
+  "name" "character varying(255)" [not null]
+  "uuid" "character varying(255)" [not null]
+  "version" integer [not null]
+  "unit" "character varying(50)"
+  "organisation_id" integer [not null, default: 1]
+  "is_voided" boolean [not null, default: false]
+  "audit_id" integer
+  "key_values" jsonb
+  "active" boolean [not null, default: true]
+}
+
+Table "concept_answer" {
+  "id" integer [not null]
+  "concept_id" bigint [not null]
+  "answer_concept_id" bigint [not null]
+  "uuid" "character varying(255)" [not null]
+  "version" integer [not null]
+  "answer_order" double [not null]
+  "organisation_id" integer [not null, default: 1]
+  "abnormal" boolean [not null, default: false]
+  "is_voided" boolean [not null, default: false]
+  "uniq" boolean [not null, default: false]
+  "audit_id" integer
+}
+
+Table "form_element" {
+  "id" integer [not null]
+  "name" "character varying(255)" [not null]
+  "display_order" double [not null]
+  "is_mandatory" boolean [not null, default: false]
+  "key_values" jsonb
+  "concept_id" bigint [not null]
+  "form_element_group_id" bigint [not null]
+  "uuid" "character varying(255)" [not null]
+  "version" integer [not null]
+  "organisation_id" integer [not null, default: 1]
+  "type" "character varying(1024)"
+  "valid_format_regex" "character varying(255)"
+  "valid_format_description_key" "character varying(255)"
+  "audit_id" integer
+  "is_voided" boolean [not null, default: false]
+  "rule" text
+}
+
+Table "form_element_group" {
+  "id" integer [not null]
+  "name" "character varying(255)" [not null]
+  "form_id" bigint [not null]
+  "uuid" "character varying(255)" [not null]
+  "version" integer [not null]
+  "display_order" double
+  "display" "character varying(100)"
+  "organisation_id" integer [not null, default: 1]
+  "audit_id" integer
+  "is_voided" boolean [not null, default: false]
+  "rule" text
+}
+
+Table "encounter_type" {
+  "id" integer [not null]
+  "name" "character varying(255)" [not null]
+  "concept_id" bigint
+  "uuid" "character varying(255)" [not null]
+  "version" integer [not null]
+  "organisation_id" integer [not null, default: 1]
+  "audit_id" integer
+  "is_voided" boolean [not null, default: false]
+  "encounter_eligibility_check_rule" text
+  "active" boolean [not null, default: true]
+}
+
+Table "program" {
+  "id" smallint [not null]
+  "uuid" "character varying(255)" [not null]
+  "name" "character varying(255)" [not null]
+  "version" integer [not null]
+  "colour" "character varying(20)"
+  "organisation_id" integer [not null, default: 1]
+  "audit_id" integer
+  "is_voided" boolean [not null, default: false]
+  "enrolment_summary_rule" text
+  "enrolment_eligibility_check_rule" text
+  "active" boolean [not null, default: true]
+}
+
+Table "audit" {
+  "id" integer [not null]
+  "uuid" "character varying(255)"
+  "created_by_id" bigint [not null]
+  "last_modified_by_id" bigint [not null]
+  "created_date_time" timestamp [not null]
+  "last_modified_date_time" timestamp [not null]
+}
+
+Table "batch_job_execution" {
+  "job_execution_id" bigint [not null]
+  "version" bigint
+  "job_instance_id" bigint [not null]
+  "create_time" timestamp [not null]
+  "start_time" timestamp
+  "end_time" timestamp
+  "status" "character varying(10)"
+  "exit_code" "character varying(2500)"
+  "exit_message" "character varying(2500)"
+  "last_updated" timestamp
+  "job_configuration_location" "character varying(2500)"
+}
+
+Table "batch_job_execution_context" {
+  "job_execution_id" bigint [not null]
+  "short_context" "character varying(2500)" [not null]
+  "serialized_context" text
+}
+
+Table "batch_job_execution_params" {
+  "job_execution_id" bigint [not null]
+  "type_cd" "character varying(6)" [not null]
+  "key_name" "character varying(100)" [not null]
+  "string_val" "character varying(250)"
+  "date_val" timestamp
+  "long_val" bigint
+  "double_val" double
+  "identifying" character(1) [not null]
+}
+
+Table "batch_job_instance" {
+  "job_instance_id" bigint [not null]
+  "version" bigint
+  "job_name" "character varying(100)" [not null]
+  "job_key" "character varying(32)" [not null]
+}
+
+Table "batch_step_execution" {
+  "step_execution_id" bigint [not null]
+  "version" bigint [not null]
+  "step_name" "character varying(100)" [not null]
+  "job_execution_id" bigint [not null]
+  "start_time" timestamp [not null]
+  "end_time" timestamp
+  "status" "character varying(10)"
+  "commit_count" bigint
+  "read_count" bigint
+  "filter_count" bigint
+  "write_count" bigint
+  "read_skip_count" bigint
+  "write_skip_count" bigint
+  "process_skip_count" bigint
+  "rollback_count" bigint
+  "exit_code" "character varying(2500)"
+  "exit_message" "character varying(2500)"
+  "last_updated" timestamp
+}
+
+Table "batch_step_execution_context" {
+  "step_execution_id" bigint [not null]
+  "short_context" "character varying(2500)" [not null]
+  "serialized_context" text
+}
+
+Table "catchment" {
+  "id" integer [not null]
+  "name" "character varying(255)" [not null]
+  "uuid" "character varying(255)" [not null]
+  "version" integer [not null]
+  "organisation_id" integer [not null, default: 1]
+  "type" "character varying(1024)"
+  "audit_id" integer
+  "is_voided" boolean [not null, default: false]
+}
+
+Table "catchment_address_mapping" {
+  "id" integer [not null]
+  "catchment_id" bigint [not null]
+  "addresslevel_id" bigint [not null]
+}
+
+Table "checklist" {
+  "id" integer [not null]
+  "program_enrolment_id" bigint [not null]
+  "uuid" "character varying(255)" [not null]
+  "version" integer [not null]
+  "base_date" timestamp [not null]
+  "organisation_id" integer [not null, default: 1]
+  "audit_id" integer
+  "is_voided" boolean [not null, default: false]
+  "checklist_detail_id" integer
+}
+
+Table "checklist_detail" {
+  "id" smallint [not null]
+  "uuid" "character varying(255)" [not null]
+  "version" integer [not null]
+  "audit_id" integer [not null]
+  "name" "character varying" [not null]
+  "is_voided" boolean [not null, default: false]
+  "organisation_id" integer [not null]
+}
+
+Table "checklist_item" {
+  "id" integer [not null]
+  "completion_date" timestamp
+  "checklist_id" bigint [not null]
+  "uuid" "character varying(255)" [not null]
+  "version" integer [not null]
+  "organisation_id" integer [not null, default: 1]
+  "audit_id" integer
+  "is_voided" boolean [not null, default: false]
+  "observations" jsonb
+  "checklist_item_detail_id" integer
+}
+
+Table "checklist_item_detail" {
+  "id" smallint [not null]
+  "uuid" "character varying(255)" [not null]
+  "version" integer [not null]
+  "audit_id" integer [not null]
+  "form_id" integer [not null]
+  "concept_id" integer [not null]
+  "checklist_detail_id" integer [not null]
+  "status" jsonb
+  "is_voided" boolean [not null, default: false]
+  "organisation_id" integer [not null]
+  "dependent_on" integer
+  "schedule_on_expiry_of_dependency" boolean [not null, default: false]
+  "min_days_from_start_date" smallint
+  "min_days_from_dependent" integer
+  "expires_after" integer
+}
+
+Table "deps_saved_ddl" {
+  "deps_id" integer [not null]
+  "deps_view_schema" "character varying(255)"
+  "deps_view_name" "character varying(255)"
+  "deps_ddl_to_run" text
+}
+
+Table "encounter" {
+  "id" integer [not null]
+  "observations" jsonb [not null]
+  "encounter_date_time" timestamp
+  "encounter_type_id" integer [not null]
+  "individual_id" integer [not null]
+  "uuid" "character varying(255)" [not null]
+  "version" integer [not null]
+  "organisation_id" integer [not null, default: 1]
+  "is_voided" boolean [not null, default: false]
+  "audit_id" integer
+  "encounter_location" point
+  "earliest_visit_date_time" timestamp
+  "max_visit_date_time" timestamp
+  "cancel_date_time" timestamp
+  "cancel_observations" jsonb
+  "cancel_location" point
+  "name" text
+  "legacy_id" "character varying"
+}
+
+Table "facility" {
+  "id" integer [not null]
+  "uuid" "character varying(255)" [not null]
+  "name" "character varying(255)" [not null]
+  "address_id" bigint
+  "is_voided" boolean [not null, default: false]
+  "organisation_id" integer [not null]
+  "version" integer [not null]
+  "audit_id" integer
+}
+
+Table "gender" {
+  "id" smallint [not null]
+  "uuid" "character varying(255)" [not null]
+  "name" "character varying(255)" [not null]
+  "concept_id" bigint
+  "version" integer [not null]
+  "audit_id" integer
+  "is_voided" boolean [not null, default: false]
+  "organisation_id" integer [not null]
+}
+
+Table "group_privilege" {
+  "id" integer [not null]
+  "uuid" "character varying(255)" [not null]
+  "group_id" integer [not null]
+  "privilege_id" integer [not null]
+  "subject_type_id" integer
+  "program_id" integer
+  "program_encounter_type_id" integer
+  "encounter_type_id" integer
+  "checklist_detail_id" integer
+  "allow" boolean [not null, default: false]
+  "is_voided" boolean [not null, default: false]
+  "version" integer
+  "organisation_id" integer [not null]
+  "audit_id" integer
+}
+
+Table "group_role" {
+  "id" integer [not null]
+  "uuid" "character varying(255)" [not null]
+  "group_subject_type_id" integer [not null]
+  "role" text
+  "member_subject_type_id" integer [not null]
+  "is_primary" boolean [not null, default: false]
+  "maximum_number_of_members" integer [not null]
+  "minimum_number_of_members" integer [not null]
+  "organisation_id" integer [not null]
+  "audit_id" integer
+  "is_voided" boolean [not null, default: false]
+  "version" integer
+}
+
+Table "group_subject" {
+  "id" integer [not null]
+  "uuid" "character varying(255)" [not null]
+  "group_subject_id" integer [not null]
+  "member_subject_id" integer [not null]
+  "group_role_id" integer [not null]
+  "membership_start_date" timestamp
+  "membership_end_date" timestamp
+  "organisation_id" integer [not null]
+  "audit_id" integer
+  "is_voided" boolean [not null, default: false]
+  "version" integer
+}
+
+Table "groups" {
+  "id" integer [not null]
+  "uuid" "character varying(255)" [not null]
+  "name" "character varying(255)" [not null]
+  "is_voided" boolean [not null, default: false]
+  "version" integer
+  "organisation_id" integer [not null]
+  "audit_id" integer
+  "has_all_privileges" boolean [not null, default: false]
+}
+
+Table "identifier_assignment" {
+  "id" integer [not null]
+  "uuid" "character varying(255)" [not null]
+  "identifier_source_id" integer [not null]
+  "identifier" text [not null]
+  "assignment_order" integer [not null]
+  "assigned_to_user_id" integer [not null]
+  "individual_id" integer
+  "program_enrolment_id" integer
+  "version" integer [not null]
+  "is_voided" boolean [not null, default: false]
+  "organisation_id" integer [not null, default: 1]
+  "audit_id" integer [not null]
+}
+
+Table "identifier_source" {
+  "id" integer [not null]
+  "uuid" "character varying(255)" [not null]
+  "name" "character varying(255)" [not null]
+  "type" text [not null]
+  "catchment_id" integer
+  "facility_id" integer
+  "minimum_balance" integer [not null, default: 20]
+  "batch_generation_size" integer [not null, default: 100]
+  "options" jsonb
+  "version" integer [not null]
+  "is_voided" boolean [not null, default: false]
+  "organisation_id" integer [not null, default: 1]
+  "audit_id" integer [not null]
+  "min_length" integer [not null, default: 0]
+  "max_length" integer [not null, default: 0]
+}
+
+Table "identifier_user_assignment" {
+  "id" integer [not null]
+  "uuid" "character varying(255)" [not null]
+  "identifier_source_id" integer [not null]
+  "assigned_to_user_id" integer [not null]
+  "identifier_start" text [not null]
+  "identifier_end" text [not null]
+  "last_assigned_identifier" text
+  "version" integer [not null]
+  "is_voided" boolean [not null, default: false]
+  "organisation_id" integer [not null, default: 1]
+  "audit_id" integer [not null]
+}
+
+Table "individual" {
+  "id" integer [not null]
+  "uuid" "character varying(255)" [not null]
+  "address_id" bigint [not null]
+  "observations" jsonb
+  "version" integer [not null]
+  "date_of_birth" date
+  "date_of_birth_verified" boolean [not null]
+  "gender_id" bigint
+  "registration_date" date
+  "organisation_id" integer [not null, default: 1]
+  "first_name" "character varying(256)"
+  "last_name" "character varying(256)"
+  "is_voided" boolean [not null, default: false]
+  "audit_id" integer
+  "facility_id" bigint
+  "registration_location" point
+  "subject_type_id" integer [not null]
+  "legacy_id" "character varying"
+}
+
+Table "individual_relation" {
+  "id" smallint [not null]
+  "uuid" "character varying(255)" [not null]
+  "name" "character varying(255)" [not null]
+  "is_voided" boolean [not null, default: false]
+  "organisation_id" integer [not null]
+  "version" integer [not null]
+  "audit_id" integer
+}
+
+Table "individual_relation_gender_mapping" {
+  "id" smallint [not null]
+  "uuid" "character varying(255)" [not null]
+  "relation_id" smallint [not null]
+  "gender_id" smallint [not null]
+  "is_voided" boolean [not null, default: false]
+  "organisation_id" integer [not null]
+  "version" integer [not null]
+  "audit_id" integer
+}
+
+Table "individual_relationship" {
+  "id" integer [not null]
+  "uuid" "character varying(255)" [not null]
+  "individual_a_id" bigint [not null]
+  "individual_b_id" bigint [not null]
+  "relationship_type_id" smallint [not null]
+  "enter_date_time" timestamp
+  "exit_date_time" timestamp
+  "exit_observations" jsonb
+  "is_voided" boolean [not null, default: false]
+  "organisation_id" integer [not null]
+  "version" integer [not null]
+  "audit_id" integer
+}
+
+Table "individual_relationship_type" {
+  "id" smallint [not null]
+  "uuid" "character varying(255)" [not null]
+  "name" "character varying(255)" [not null]
+  "individual_a_is_to_b_relation_id" smallint [not null]
+  "individual_b_is_to_a_relation_id" smallint [not null]
+  "is_voided" boolean [not null, default: false]
+  "organisation_id" integer [not null]
+  "version" integer [not null]
+  "audit_id" integer
+}
+
+Table "individual_relative" {
+  "id" smallint [not null]
+  "uuid" "character varying(255)" [not null]
+  "individual_id" bigint [not null]
+  "relative_individual_id" bigint [not null]
+  "relation_id" smallint [not null]
+  "enter_date_time" timestamp
+  "exit_date_time" timestamp
+  "is_voided" boolean [not null, default: false]
+  "organisation_id" integer [not null]
+  "version" integer [not null]
+  "audit_id" integer
+}
+
+Table "location_location_mapping" {
+  "id" integer [not null]
+  "location_id" bigint
+  "parent_location_id" bigint
+  "version" integer [not null]
+  "audit_id" bigint
+  "uuid" "character varying(255)" [not null]
+  "is_voided" boolean [not null, default: false]
+  "organisation_id" bigint
+}
+
+Table "non_applicable_form_element" {
+  "id" integer [not null]
+  "organisation_id" bigint
+  "form_element_id" bigint
+  "is_voided" boolean [not null, default: false]
+  "version" integer [not null, default: 0]
+  "audit_id" integer
+  "uuid" "character varying(255)" [not null]
+}
+
+Table "operational_subject_type" {
+  "id" integer [not null]
+  "uuid" "character varying(255)" [not null]
+  "name" "character varying(255)" [not null]
+  "subject_type_id" integer [not null]
+  "organisation_id" bigint [not null]
+  "is_voided" boolean [not null, default: false]
+  "audit_id" bigint [not null]
+  "version" integer [default: 1]
+}
+
+Table "organisation_config" {
+  "id" integer [not null]
+  "uuid" "character varying(255)" [not null]
+  "organisation_id" bigint [not null]
+  "settings" jsonb
+  "audit_id" bigint
+  "version" integer [default: 1]
+  "is_voided" boolean [default: false]
+  "worklist_updation_rule" text
+}
+
+Table "organisation_group" {
+  "id" integer [not null]
+  "name" "character varying(255)" [not null]
+  "db_user" "character varying(255)" [not null]
+  "account_id" integer [not null]
+}
+
+Table "organisation_group_organisation" {
+  "id" integer [not null]
+  "name" "character varying(255)" [not null]
+  "organisation_group_id" integer [not null]
+  "organisation_id" integer [not null]
+}
+
+Table "platform_translation" {
+  "id" integer [not null]
+  "uuid" "character varying(255)" [not null]
+  "translation_json" jsonb [not null]
+  "is_voided" boolean [not null, default: false]
+  "platform" "character varying(255)" [not null]
+  "language" "character varying(255)"
+  "created_date_time" timestamp
+  "last_modified_date_time" timestamp
+}
+
+Table "privilege" {
+  "id" integer [not null]
+  "uuid" "character varying(255)" [not null]
+  "name" "character varying(255)" [not null]
+  "description" text
+  "entity_type" "character varying(255)" [not null]
+  "is_voided" boolean [not null, default: false]
+  "created_date_time" timestamp
+  "last_modified_date_time" timestamp
+}
+
+Table "program_encounter" {
+  "id" integer [not null]
+  "observations" jsonb [not null]
+  "earliest_visit_date_time" timestamp
+  "encounter_date_time" timestamp
+  "program_enrolment_id" integer [not null]
+  "uuid" "character varying(255)" [not null]
+  "version" integer [not null]
+  "encounter_type_id" integer [not null, default: 1]
+  "name" "character varying(255)"
+  "max_visit_date_time" timestamp
+  "organisation_id" integer [not null, default: 1]
+  "cancel_date_time" timestamp
+  "cancel_observations" jsonb
+  "audit_id" integer
+  "is_voided" boolean [not null, default: false]
+  "encounter_location" point
+  "cancel_location" point
+  "legacy_id" "character varying"
+}
+
+Table "program_enrolment" {
+  "id" integer [not null]
+  "program_id" smallint [not null]
+  "individual_id" bigint [not null]
+  "program_outcome_id" smallint
+  "observations" jsonb
+  "program_exit_observations" jsonb
+  "enrolment_date_time" timestamp [not null]
+  "program_exit_date_time" timestamp
+  "uuid" "character varying(255)" [not null]
+  "version" integer [not null]
+  "organisation_id" integer [not null, default: 1]
+  "audit_id" integer
+  "is_voided" boolean [not null, default: false]
+  "enrolment_location" point
+  "exit_location" point
+  "legacy_id" "character varying"
+}
+
+Table "program_organisation_config" {
+  "id" integer [not null]
+  "uuid" "character varying(255)" [not null]
+  "program_id" bigint [not null]
+  "organisation_id" bigint [not null]
+  "visit_schedule" jsonb
+  "version" integer [not null]
+  "audit_id" integer
+  "is_voided" boolean [not null, default: false]
+}
+
+Table "program_organisation_config_at_risk_concept" {
+  "id" integer [not null]
+  "program_organisation_config_id" integer [not null]
+  "concept_id" integer [not null]
+}
+
+Table "program_outcome" {
+  "id" integer [not null]
+  "uuid" "character varying(255)" [not null]
+  "name" "character varying(255)" [not null]
+  "version" integer [not null]
+  "organisation_id" integer [not null, default: 1]
+  "audit_id" integer
+  "is_voided" boolean [not null, default: false]
+}
+
+Table "rule" {
+  "id" smallint [not null]
+  "uuid" "character varying(255)" [not null]
+  "version" integer [not null]
+  "audit_id" integer [not null]
+  "type" "character varying" [not null]
+  "rule_dependency_id" integer
+  "name" "character varying" [not null]
+  "fn_name" "character varying" [not null]
+  "data" jsonb
+  "organisation_id" integer [not null]
+  "execution_order" double [not null, default: 10000.0]
+  "is_voided" boolean [not null, default: false]
+  "entity" jsonb [not null]
+}
+
+Table "rule_dependency" {
+  "id" smallint [not null]
+  "uuid" "character varying(255)" [not null]
+  "version" integer [not null]
+  "audit_id" integer [not null]
+  "checksum" "character varying" [not null]
+  "code" text [not null]
+  "organisation_id" integer [not null]
+  "is_voided" boolean [not null, default: false]
+}
+
+Table "rule_failure_log" {
+  "id" integer [not null]
+  "uuid" "character varying(255)" [not null]
+  "form_id" "character varying(255)" [not null]
+  "rule_type" "character varying(255)" [not null]
+  "entity_type" "character varying(255)" [not null]
+  "entity_id" "character varying(255)" [not null]
+  "error_message" "character varying(255)" [not null]
+  "stacktrace" text [not null]
+  "source" "character varying(255)" [not null]
+  "audit_id" integer
+  "is_voided" boolean [not null, default: false]
+  "version" integer [not null]
+  "organisation_id" bigint [not null]
+}
+
+Table "rule_failure_telemetry" {
+  "id" integer [not null]
+  "uuid" "character varying(255)" [not null]
+  "user_id" integer [not null]
+  "organisation_id" bigint [not null]
+  "version" integer [default: 1]
+  "rule_uuid" "character varying(255)" [not null]
+  "individual_uuid" "character varying(255)" [not null]
+  "error_message" "character varying(255)" [not null]
+  "stacktrace" text [not null]
+  "error_date_time" timestamp
+  "close_date_time" timestamp
+  "is_closed" boolean [not null, default: false]
+  "audit_id" bigint
+}
+
+Table "schema_version" {
+  "installed_rank" integer [not null]
+  "version" "character varying(50)"
+  "description" "character varying(200)" [not null]
+  "type" "character varying(20)" [not null]
+  "script" "character varying(1000)" [not null]
+  "checksum" integer
+  "installed_by" "character varying(100)" [not null]
+  "installed_on" timestamp [not null, default: `now()`]
+  "execution_time" integer [not null]
+  "success" boolean [not null]
+}
+
+Table "subject_type" {
+  "id" integer [not null]
+  "uuid" "character varying(255)"
+  "name" "character varying(255)" [not null]
+  "organisation_id" bigint [not null]
+  "is_voided" boolean [not null, default: false]
+  "audit_id" bigint [not null]
+  "version" integer [default: 1]
+  "is_group" boolean [not null, default: false]
+  "is_household" boolean [not null, default: false]
+  "active" boolean [not null, default: true]
+  "type" "character varying(255)"
+}
+
+Table "sync_telemetry" {
+  "id" integer [not null]
+  "uuid" "character varying(255)" [not null]
+  "user_id" integer [not null]
+  "organisation_id" bigint [not null]
+  "version" integer [default: 1]
+  "sync_status" "character varying(255)" [not null]
+  "sync_start_time" timestamp [not null]
+  "sync_end_time" timestamp
+  "entity_status" jsonb
+  "device_name" "character varying(255)"
+  "android_version" "character varying(255)"
+  "app_version" "character varying(255)"
+}
+
+Table "translation" {
+  "id" integer [not null]
+  "uuid" "character varying(255)" [not null]
+  "organisation_id" bigint [not null]
+  "audit_id" bigint [not null]
+  "version" integer [default: 1]
+  "translation_json" jsonb [not null]
+  "is_voided" boolean [not null, default: false]
+  "language" "character varying(255)"
+}
+
+Table "user_facility_mapping" {
+  "id" integer [not null]
+  "version" integer [not null, default: 1]
+  "audit_id" bigint [not null]
+  "uuid" "character varying(255)" [not null]
+  "is_voided" boolean [not null, default: false]
+  "organisation_id" bigint [not null]
+  "facility_id" bigint [not null]
+  "user_id" bigint [not null]
+}
+
+Table "user_group" {
+  "id" integer [not null]
+  "uuid" "character varying(255)" [not null]
+  "user_id" integer [not null]
+  "group_id" integer [not null]
+  "is_voided" boolean [not null, default: false]
+  "version" integer
+  "organisation_id" integer [not null]
+  "audit_id" integer
+}
+
+Table "users" {
+  "id" integer [not null]
+  "uuid" "character varying(255)" [not null]
+  "username" "character varying(255)" [not null]
+  "organisation_id" integer
+  "created_by_id" bigint [not null, default: 1]
+  "last_modified_by_id" bigint [not null, default: 1]
+  "created_date_time" timestamp [not null, default: `now()`]
+  "last_modified_date_time" timestamp [not null, default: `now()`]
+  "is_voided" boolean [not null, default: false]
+  "catchment_id" integer
+  "is_org_admin" boolean [not null, default: false]
+  "operating_individual_scope" "character varying(255)" [not null]
+  "settings" jsonb
+  "email" "character varying(320)"
+  "phone_number" "character varying(32)"
+  "disabled_in_cognito" boolean [default: false]
+  "name" "character varying(255)"
+
+Indexes {
+  username [type: btree, unique, name: "users_username_idx"]
+}
+}
+
+Table "video" {
+  "id" integer [not null]
+  "version" integer [default: 1]
+  "audit_id" bigint [not null]
+  "uuid" "character varying(255)"
+  "organisation_id" bigint [not null]
+  "title" "character varying(255)" [not null]
+  "file_path" "character varying(255)" [not null]
+  "description" "character varying(255)"
+  "duration" integer
+  "is_voided" boolean [not null, default: false]
+}
+
+Table "video_telemetric" {
+  "id" integer [not null]
+  "uuid" "character varying(255)"
+  "video_start_time" double [not null]
+  "video_end_time" double [not null]
+  "player_open_time" timestamp [not null]
+  "player_close_time" timestamp [not null]
+  "video_id" integer [not null]
+  "user_id" integer [not null]
+  "created_datetime" timestamp [not null]
+  "organisation_id" integer [not null]
+  "is_voided" boolean [not null, default: false]
+}
