@@ -33,14 +33,14 @@ Table "organisation_group" {
  	"id" integer  [default: `nextval('organisation_group_id_seq'::regclass)`]
  	"name" varchar(255)
  	"db_user" varchar(255)
- 	"account_id" integer
+ 	"account_id" integer [ref: > account.id]
  }
 
  Table "organisation_group_organisation" {
  	"id" integer  [default: `nextval('organisation_group_organisation_id_seq'::regclass)`]
  	"name" varchar(255)
- 	"organisation_group_id" integer
- 	"organisation_id" integer
+ 	"organisation_group_id" integer [ref: > organisation_group.id]
+ 	"organisation_id" integer [ref: > organisation.id]
  }
 
 Table "organisation" {
@@ -71,9 +71,9 @@ TableGroup Organisation {
  	"uuid" varchar(255)  
  	"version" integer   
  	"organisation_id" integer  [default: 1, ref: > organisation.id]
- 	"audit_id" integer   
+ 	"audit_id" integer   [ref: > audit.id]
  	"is_voided" boolean  [default: false] 
- 	"type_id" integer
+ 	"type_id" integer [ref: > address_level_type.id]
 // 	"lineage" USER-DEFINED
  	"parent_id" integer [ref: > address_level.id]
  }
@@ -120,13 +120,13 @@ Table "catchment_address_mapping" {
 
   Table "location_location_mapping" {
   	"id" integer  [default: `nextval('location_location_mapping_id_seq'::regclass)`]
-  	"location_id" bigint
-  	"parent_location_id" bigint
+  	"location_id" bigint [ref: > address_level.id]
+  	"parent_location_id" bigint [ref: > address_level.id]
   	"version" integer
-  	"audit_id" bigint
+  	"audit_id" bigint [ref: > audit.id]
   	"uuid" varchar(255)
   	"is_voided" boolean  [default: false]
-  	"organisation_id" bigint
+  	"organisation_id" bigint [ref: > organisation.id]
   }
 
 TableGroup "Work Area" {
@@ -145,10 +145,10 @@ TableGroup "Work Area" {
  	"id" integer  [default: `nextval('user_group_id_seq'::regclass)`]
  	"uuid" varchar(255)
  	"user_id" integer
- 	"group_id" integer
+ 	"group_id" integer [ref: > user_group.id]
  	"is_voided" boolean  [default: false]
  	"version" integer
- 	"organisation_id" integer
+ 	"organisation_id" integer [ref: > organisation.id]
  	"audit_id" integer   [ref: > audit.id]
  }
 
@@ -156,13 +156,13 @@ TableGroup "Work Area" {
  	"id" integer  [default: `nextval('users_id_seq'::regclass)`]
  	"uuid" varchar(255)
  	"username" varchar(255)
- 	"organisation_id" integer
- 	"created_by_id" bigint  [default: 1]
- 	"last_modified_by_id" bigint  [default: 1]
+ 	"organisation_id" integer [ref: > organisation.id]
+ 	"created_by_id" bigint  [default: 1, ref: > users.id]
+ 	"last_modified_by_id" bigint  [default: 1 , ref: > users.id]
  	"created_date_time" timestamp  [default: `now()`]
  	"last_modified_date_time" timestamp  [default: `now()`]
  	"is_voided" boolean  [default: false]
- 	"catchment_id" integer
+ 	"catchment_id" integer [ref: > catchment.id]
  	"is_org_admin" boolean  [default: false]
  	"operating_individual_scope" varchar(255)
  	"settings" jsonb
@@ -175,12 +175,12 @@ TableGroup "Work Area" {
 Table "user_facility_mapping" {
  	"id" integer  [default: `nextval('user_facility_mapping_id_seq'::regclass)`]
  	"version" integer  [default: 1]
- 	"audit_id" bigint
+ 	"audit_id" bigint [ref: > audit.id]
  	"uuid" varchar(255)
  	"is_voided" boolean  [default: false]
- 	"organisation_id" bigint
- 	"facility_id" bigint
- 	"user_id" bigint
+ 	"organisation_id" bigint [ref: > organisation.id]
+ 	"facility_id" bigint [ref: > facility.id]
+ 	"user_id" bigint [ref: > users.id]
  }
 
  TableGroup Users {
@@ -213,8 +213,8 @@ Table "user_facility_mapping" {
 
  Table "concept_answer" {
  	"id" integer  [default: `nextval('concept_answer_id_seq'::regclass)`]
- 	"concept_id" bigint
- 	"answer_concept_id" bigint
+ 	"concept_id" bigint [ref: > concept.id]
+ 	"answer_concept_id" bigint [ref: > concept.id]
  	"uuid" varchar(255)
  	"version" integer
  	"answer_order" number
@@ -243,9 +243,9 @@ Table "user_facility_mapping" {
    	"id" integer  [default: `nextval('subject_type_id_seq'::regclass)`]
    	"uuid" varchar(255)
    	"name" varchar(255)
-   	"organisation_id" bigint
+   	"organisation_id" bigint [ref: > organisation.id]
    	"is_voided" boolean  [default: false]
-   	"audit_id" bigint
+   	"audit_id" bigint [ref: > audit.id]
    	"version" integer  [default: 1]
    	"is_group" boolean  [default: false]
    	"is_household" boolean  [default: false]
@@ -256,7 +256,7 @@ Table "user_facility_mapping" {
  Table "encounter_type" {
  	"id" integer  [default: `nextval('encounter_type_id_seq'::regclass)`]
  	"name" varchar(255)
- 	"concept_id" bigint
+ 	"concept_id" bigint [ref: > concept.id, note: 'UNUSED']
  	"uuid" varchar(255)
  	"version" integer
  	"organisation_id" integer  [default: 1, ref: > organisation.id]
@@ -303,7 +303,7 @@ Table "user_facility_mapping" {
  Table "form_element_group" {
  	"id" integer  [default: `nextval('form_element_group_id_seq'::regclass)`]
  	"name" varchar(255)
- 	"form_id" bigint
+ 	"form_id" bigint [ref: > form.id]
  	"uuid" varchar(255)
  	"version" integer
  	"display_order" number  [default: "-1"]
@@ -316,7 +316,7 @@ Table "user_facility_mapping" {
 
  Table "form_mapping" {
   	"id" integer  [default: `nextval('form_mapping_id_seq'::regclass)`]
-  	"form_id" bigint
+  	"form_id" bigint [ref: > form.id]
   	"uuid" varchar(255)
   	"version" integer
   	"entity_id" bigint
@@ -329,8 +329,8 @@ Table "user_facility_mapping" {
 
 Table "non_applicable_form_element" {
  	"id" integer  [default: `nextval('non_applicable_form_element_id_seq'::regclass)`]
- 	"organisation_id" bigint
- 	"form_element_id" bigint
+ 	"organisation_id" bigint [ref: > organisation.id]
+ 	"form_element_id" bigint [ref: > form_element.id]
  	"is_voided" boolean  [default: false]
  	"version" integer  [default: 0]
  	"audit_id" integer   [ref: > audit.id]
@@ -340,8 +340,8 @@ Table "non_applicable_form_element" {
  Table "operational_encounter_type" {
  	"id" integer  [default: `nextval('operational_encounter_type_id_seq'::regclass)`]
  	"uuid" varchar(255)
- 	"organisation_id" integer
- 	"encounter_type_id" integer
+ 	"organisation_id" integer [ref: > organisation.id]
+ 	"encounter_type_id" integer [ref: > encounter_type.id]
  	"version" integer
  	"audit_id" integer   [ref: > audit.id]
  	"name" varchar(255)
@@ -351,8 +351,8 @@ Table "non_applicable_form_element" {
  Table "operational_program" {
  	"id" integer  [default: `nextval('operational_program_id_seq'::regclass)`]
  	"uuid" varchar(255)
- 	"organisation_id" integer
- 	"program_id" integer
+ 	"organisation_id" integer [ref: > organisation.id]
+ 	"program_id" integer [ref: > program.id]
  	"version" integer
  	"audit_id" integer   [ref: > audit.id]
  	"name" varchar(255)
@@ -364,10 +364,10 @@ Table "non_applicable_form_element" {
  	"id" integer  [default: `nextval('operational_subject_type_id_seq'::regclass)`]
  	"uuid" varchar(255)
  	"name" varchar(255)
- 	"subject_type_id" integer
- 	"organisation_id" bigint
+ 	"subject_type_id" integer [ref: > subject_type.id]
+ 	"organisation_id" bigint [ref: > organisation.id]
  	"is_voided" boolean  [default: false]
- 	"audit_id" bigint
+ 	"audit_id" bigint [ref: > audit.id]
  	"version" integer  [default: 1]
  }
 
@@ -396,7 +396,7 @@ Table "non_applicable_form_element" {
  	"uuid" varchar(255)
  	"name" varchar(255)
  	"is_voided" boolean  [default: false]
- 	"organisation_id" integer
+ 	"organisation_id" integer [ref: > organisation.id]
  	"version" integer
  	"audit_id" integer   [ref: > audit.id]
  }
@@ -405,20 +405,20 @@ Table "non_applicable_form_element" {
   	"id" smallint  [default: `nextval('gender_id_seq'::regclass)`]
   	"uuid" varchar(255)
   	"name" varchar(255)
-  	"concept_id" bigint
+  	"concept_id" bigint [ref: > concept.id]
   	"version" integer
   	"audit_id" integer   [ref: > audit.id]
   	"is_voided" boolean  [default: false]
-  	"organisation_id" integer
+  	"organisation_id" integer [ref: > organisation.id]
   }
 
 Table "individual_relation_gender_mapping" {
  	"id" smallint  [default: `nextval('individual_relation_gender_mapping_id_seq'::regclass)`]
  	"uuid" varchar(255)
  	"relation_id" smallint
- 	"gender_id" smallint
+ 	"gender_id" smallint [ref: > gender.id]
  	"is_voided" boolean  [default: false]
- 	"organisation_id" integer
+ 	"organisation_id" integer [ref: > organisation.id]
  	"version" integer
  	"audit_id" integer   [ref: > audit.id]
  }
@@ -430,7 +430,7 @@ Table "individual_relation_gender_mapping" {
  	"individual_a_is_to_b_relation_id" smallint
  	"individual_b_is_to_a_relation_id" smallint
  	"is_voided" boolean  [default: false]
- 	"organisation_id" integer
+ 	"organisation_id" integer [ref: > organisation.id]
  	"version" integer
  	"audit_id" integer   [ref: > audit.id]
  }
@@ -523,11 +523,11 @@ Table "rule" {
  	"version" integer
  	"audit_id" integer   [ref: > audit.id]
  	"type" varchar
- 	"rule_dependency_id" integer
+ 	"rule_dependency_id" integer [ref: > rule_dependency.id]
  	"name" varchar
  	"fn_name" varchar
  	"data" jsonb
- 	"organisation_id" integer
+ 	"organisation_id" integer [ref: > organisation.id]
  	"execution_order" number  [default: 10000.0]
  	"is_voided" boolean  [default: false]
  	"entity" jsonb
@@ -540,7 +540,7 @@ Table "rule" {
  	"audit_id" integer   [ref: > audit.id]
  	"checksum" varchar
  	"code" text
- 	"organisation_id" integer
+ 	"organisation_id" integer [ref: > organisation.id]
  	"is_voided" boolean  [default: false]
  }
 
@@ -576,49 +576,53 @@ TableGroup Rules {
  	"legacy_id" varchar   
  }
 
-  Table "group_subject" {
-  	"id" integer  [default: `nextval('group_subject_id_seq'::regclass)`]
+ Table "group_role" {
+  	"id" integer  [default: `nextval('group_role_id_seq'::regclass)`]
   	"uuid" varchar(255)
-  	"group_subject_id" integer
-  	"member_subject_id" integer
-  	"group_role_id" integer
-  	"membership_start_date" timestamp
-  	"membership_end_date" timestamp
-  	"organisation_id" integer
+  	"group_subject_type_id" integer [ref: > subject_type.id]
+  	"role" text
+  	"member_subject_type_id" integer   [ref: > subject_type.id]
+  	"is_primary" boolean  [default: false]
+  	"maximum_number_of_members" integer
+  	"minimum_number_of_members" integer
+  	"organisation_id" integer   [ref: > organisation.id]
   	"audit_id" integer   [ref: > audit.id]
   	"is_voided" boolean  [default: false]
   	"version" integer
   }
 
-  Table "groups" {
-  	"id" integer  [default: `nextval('groups_id_seq'::regclass)`]
+  Table "group_subject" {
+  	"id" integer  [default: `nextval('group_subject_id_seq'::regclass)`]
   	"uuid" varchar(255)
-  	"name" varchar(255)
+  	"group_subject_id" integer [ref: > individual.id]
+  	"member_subject_id" integer [ref: > individual.id]
+  	"group_role_id" integer [ref: > group_role.id]
+  	"membership_start_date" timestamp
+  	"membership_end_date" timestamp
+  	"organisation_id" integer [ref: > organisation.id]
+  	"audit_id" integer   [ref: > audit.id]
   	"is_voided" boolean  [default: false]
   	"version" integer
-  	"organisation_id" integer
-  	"audit_id" integer   [ref: > audit.id]
-  	"has_all_privileges" boolean  [default: false]
   }
 
 Table "individual" {
  	"id" integer  [default: `nextval('individual_id_seq'::regclass)`]
  	"uuid" varchar(255)
- 	"address_id" bigint
+ 	"address_id" bigint [ref: > address_level.id]
  	"observations" jsonb
  	"version" integer
  	"date_of_birth" date
  	"date_of_birth_verified" boolean
- 	"gender_id" bigint
+ 	"gender_id" bigint [ref: > gender.id]
  	"registration_date" date  [default: '2017-01-01']
  	"organisation_id" integer  [default: 1, ref: > organisation.id]
  	"first_name" varchar(256)
  	"last_name" varchar(256)
  	"is_voided" boolean  [default: false]
  	"audit_id" integer   [ref: > audit.id]
- 	"facility_id" bigint
+ 	"facility_id" bigint [ref: > facility.id]
  	"registration_location" point
- 	"subject_type_id" integer
+ 	"subject_type_id" integer [ref: > subject_type.id]
  	"legacy_id" varchar
  }
 
@@ -627,10 +631,10 @@ Table "individual" {
   	"observations" jsonb
   	"earliest_visit_date_time" timestamp
   	"encounter_date_time" timestamp
-  	"program_enrolment_id" integer
+  	"program_enrolment_id" integer [ref: > program_enrolment.id]
   	"uuid" varchar(255)
   	"version" integer
-  	"encounter_type_id" integer  [default: 1]
+  	"encounter_type_id" integer  [default: 1, ref: > encounter_type.id]
   	"name" varchar(255)
   	"max_visit_date_time" timestamp
   	"organisation_id" integer  [default: 1, ref: > organisation.id]
@@ -645,9 +649,9 @@ Table "individual" {
 
   Table "program_enrolment" {
   	"id" integer  [default: `nextval('program_enrolment_id_seq'::regclass)`]
-  	"program_id" smallint
-  	"individual_id" bigint
-  	"program_outcome_id" smallint
+  	"program_id" smallint [ref: > program.id]
+  	"individual_id" bigint [ref: > individual.id]
+  	"program_outcome_id" smallint [ref: > program_outcome.id]
   	"observations" jsonb
   	"program_exit_observations" jsonb
   	"enrolment_date_time" timestamp
@@ -665,28 +669,14 @@ Table "individual" {
  Table "individual_relationship" {
  	"id" integer  [default: `nextval('individual_relationship_id_seq'::regclass)`]
  	"uuid" varchar(255)
- 	"individual_a_id" bigint
- 	"individual_b_id" bigint
- 	"relationship_type_id" smallint
+ 	"individual_a_id" bigint [ref: > individual.id]
+ 	"individual_b_id" bigint [ref: > individual.id]
+ 	"relationship_type_id" smallint [ref: > individual_relationship_type.id]
  	"enter_date_time" timestamp
  	"exit_date_time" timestamp
  	"exit_observations" jsonb
  	"is_voided" boolean  [default: false]
- 	"organisation_id" integer
- 	"version" integer
- 	"audit_id" integer   [ref: > audit.id]
- }
-
- Table "individual_relative" {
- 	"id" smallint  [default: `nextval('individual_relative_id_seq'::regclass)`]
- 	"uuid" varchar(255)
- 	"individual_id" bigint
- 	"relative_individual_id" bigint
- 	"relation_id" smallint
- 	"enter_date_time" timestamp
- 	"exit_date_time" timestamp
- 	"is_voided" boolean  [default: false]
- 	"organisation_id" integer
+ 	"organisation_id" integer [ref: > organisation.id]
  	"version" integer
  	"audit_id" integer   [ref: > audit.id]
  }
@@ -696,10 +686,8 @@ TableGroup "Transaction data" {
     program_enrolment
     encounter
     program_encounter
-    groups
     group_subject
     individual_relationship
-    individual_relative
 }
 
  
@@ -720,39 +708,35 @@ TableGroup "Transaction data" {
  Table "group_privilege" {
  	"id" integer  [default: `nextval('group_privilege_id_seq'::regclass)`] 
  	"uuid" varchar(255)  
- 	"group_id" integer   
- 	"privilege_id" integer   
- 	"subject_type_id" integer   
- 	"program_id" integer   
- 	"program_encounter_type_id" integer   
- 	"encounter_type_id" integer   
- 	"checklist_detail_id" integer   
+ 	"group_id" integer [ref: > groups.id]
+ 	"privilege_id" integer   [ref: > privilege.id]
+ 	"subject_type_id" integer   [ref: > subject_type.id]
+ 	"program_id" integer   [ref: > program.id]
+ 	"program_encounter_type_id" integer   [ref: > encounter_type.id]
+ 	"encounter_type_id" integer   [ref: > encounter_type.id]
+ 	"checklist_detail_id" integer   [ref: > checklist_detail.id]
  	"allow" boolean  [default: false] 
  	"is_voided" boolean  [default: false] 
  	"version" integer   
- 	"organisation_id" integer   
+ 	"organisation_id" integer   [ref: > organisation.id]
  	"audit_id" integer   [ref: > audit.id]   
- } 
- 
- Table "group_role" {
- 	"id" integer  [default: `nextval('group_role_id_seq'::regclass)`] 
- 	"uuid" varchar(255)  
- 	"group_subject_type_id" integer   
- 	"role" text   
- 	"member_subject_type_id" integer   
- 	"is_primary" boolean  [default: false] 
- 	"maximum_number_of_members" integer   
- 	"minimum_number_of_members" integer   
- 	"organisation_id" integer   
- 	"audit_id" integer   [ref: > audit.id]   
- 	"is_voided" boolean  [default: false] 
- 	"version" integer   
- } 
+ }
+
+ Table "groups" {
+   	"id" integer  [default: `nextval('groups_id_seq'::regclass)`]
+   	"uuid" varchar(255)
+   	"name" varchar(255)
+   	"is_voided" boolean  [default: false]
+   	"version" integer
+   	"organisation_id" integer [ref: > organisation.id]
+   	"audit_id" integer   [ref: > audit.id]
+   	"has_all_privileges" boolean  [default: false]
+   }
  
 TableGroup "Access Control" {
+    groups
     privilege
     group_privilege
-    group_role
 }
 
 
@@ -762,12 +746,12 @@ TableGroup "Access Control" {
  Table "identifier_assignment" {
  	"id" integer  [default: `nextval('identifier_assignment_id_seq'::regclass)`] 
  	"uuid" varchar(255)  
- 	"identifier_source_id" integer   
+ 	"identifier_source_id" integer   [ref: > identifier_source.id]
  	"identifier" text   
  	"assignment_order" integer   
- 	"assigned_to_user_id" integer   
- 	"individual_id" integer   
- 	"program_enrolment_id" integer   
+ 	"assigned_to_user_id" integer   [ref: > users.id]
+ 	"individual_id" integer   [ref: > individual.id]
+ 	"program_enrolment_id" integer   [ref: > program_enrolment.id]
  	"version" integer   
  	"is_voided" boolean  [default: false] 
  	"organisation_id" integer  [default: 1, ref: > organisation.id] 
@@ -779,8 +763,8 @@ TableGroup "Access Control" {
  	"uuid" varchar(255)  
  	"name" varchar(255)  
  	"type" text   
- 	"catchment_id" integer   
- 	"facility_id" integer   
+ 	"catchment_id" integer   [ref: > catchment.id]
+ 	"facility_id" integer   [ref: > facility.id]
  	"minimum_balance" integer  [default: 20] 
  	"batch_generation_size" integer  [default: 100] 
  	"options" jsonb  [default: '{}']
@@ -795,8 +779,8 @@ TableGroup "Access Control" {
  Table "identifier_user_assignment" {
  	"id" integer  [default: `nextval('identifier_user_assignment_id_seq'::regclass)`] 
  	"uuid" varchar(255)  
- 	"identifier_source_id" integer   
- 	"assigned_to_user_id" integer   
+ 	"identifier_source_id" integer   [ref: > identifier_source.id]
+ 	"assigned_to_user_id" integer   [ref: > users.id]
  	"identifier_start" text   
  	"identifier_end" text   
  	"last_assigned_identifier" text   
@@ -843,8 +827,8 @@ TableGroup "Auto generated identifiers" {
  Table "translation" {
  	"id" integer  [default: `nextval('translation_id_seq'::regclass)`]
  	"uuid" varchar(255)
- 	"organisation_id" bigint
- 	"audit_id" bigint
+ 	"organisation_id" bigint [ref: > organisation.id]
+ 	"audit_id" bigint [ref: > audit.id]
  	"version" integer  [default: 1]
  	"translation_json" jsonb
  	"is_voided" boolean  [default: false]
@@ -887,11 +871,28 @@ TableGroup "Translations" {
  	"is_voided" boolean  [default: false] 
  }
 
- TableGroup "Unused tables" {
+ Table "individual_relative" {
+  	"id" smallint  [default: `nextval('individual_relative_id_seq'::regclass)`]
+  	"uuid" varchar(255)
+  	"individual_id" bigint [ref: > individual.id]
+  	"relative_individual_id" bigint [ref: > individual.id]
+  	"relation_id" smallint
+  	"enter_date_time" timestamp
+  	"exit_date_time" timestamp
+  	"is_voided" boolean  [default: false]
+  	"organisation_id" integer
+  	"version" integer
+  	"audit_id" integer   [ref: > audit.id]
+  }
+
+TableGroup "Unused tables" {
     program_organisation_config
     program_organisation_config_at_risk_concept
     program_outcome
+        individual_relative
  }
+
+
 
 
 // Telemetry and logs
@@ -908,14 +909,14 @@ TableGroup "Translations" {
  	"audit_id" integer   [ref: > audit.id]   
  	"is_voided" boolean  [default: false] 
  	"version" integer   
- 	"organisation_id" bigint   
+ 	"organisation_id" bigint   [ref: > organisation.id]
  } 
  
  Table "rule_failure_telemetry" {
  	"id" integer  [default: `nextval('rule_failure_telemetry_id_seq'::regclass)`] 
  	"uuid" varchar(255)  
- 	"user_id" integer   
- 	"organisation_id" bigint   
+ 	"user_id" integer   [ref: > users.id]
+ 	"organisation_id" bigint   [ref: > organisation.id]
  	"version" integer  [default: 1] 
  	"rule_uuid" varchar(255)  
  	"individual_uuid" varchar(255)  
@@ -924,14 +925,14 @@ TableGroup "Translations" {
  	"error_date_time" timestamp   
  	"close_date_time" timestamp   
  	"is_closed" boolean  [default: false] 
- 	"audit_id" bigint   
+ 	"audit_id" bigint   [ref: > audit.id]
  }
  
  Table "sync_telemetry" {
  	"id" integer  [default: `nextval('sync_telemetry_id_seq'::regclass)`] 
  	"uuid" varchar(255)  
- 	"user_id" integer   
- 	"organisation_id" bigint   
+ 	"user_id" integer   [ref: > users.id]
+ 	"organisation_id" bigint   [ref: > organisation.id]
  	"version" integer  [default: 1] 
  	"sync_status" varchar(255)  
  	"sync_start_time" timestamp   
@@ -949,10 +950,10 @@ TableGroup "Translations" {
   	"video_end_time" number
   	"player_open_time" timestamp
   	"player_close_time" timestamp
-  	"video_id" integer
-  	"user_id" integer
+  	"video_id" integer [ref: > video.id]
+  	"user_id" integer [ref: > users.id]
   	"created_datetime" timestamp
-  	"organisation_id" integer
+  	"organisation_id" integer [ref: > organisation.id]
   	"is_voided" boolean  [default: false]
   }
 
@@ -968,9 +969,9 @@ TableGroup "Translations" {
    Table "video" {
      	"id" integer  [default: `nextval('video_id_seq'::regclass)`]
      	"version" integer  [default: 1]
-     	"audit_id" bigint
+     	"audit_id" bigint [ref: > audit.id]
      	"uuid" varchar(255)
-     	"organisation_id" bigint
+     	"organisation_id" bigint [ref: > organisation.id]
      	"title" varchar(255)
      	"file_path" varchar(255)
      	"description" varchar(255)
