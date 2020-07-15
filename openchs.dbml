@@ -1,0 +1,902 @@
+Table "account" {
+ 	"id" integer  [default: `nextval('account_id_seq'::regclass)`] 
+ 	"name" varchar(255)  
+ } 
+ 
+ Table "account_admin" {
+ 	"id" integer  [default: `nextval('account_admin_id_seq'::regclass)`] 
+ 	"name" varchar(255)  
+ 	"account_id" integer   
+ 	"admin_id" integer   
+ } 
+ 
+ Table "address_level" {
+ 	"id" integer  [default: `nextval('address_level_id_seq'::regclass)`] 
+ 	"title" varchar(255)  
+ 	"uuid" varchar(255)  
+ 	"version" integer   
+ 	"organisation_id" integer  [default: 1] 
+ 	"audit_id" integer   
+ 	"is_voided" boolean  [default: false] 
+ 	"type_id" integer   
+ 	"lineage" USER-DEFINED   
+ 	"parent_id" integer   
+ } 
+ 
+ Table "address_level_type" {
+ 	"id" integer  [default: `nextval('address_level_type_id_seq'::regclass)`] 
+ 	"uuid" varchar(255) [default: `uuid_generate_v4()`] 
+ 	"name" varchar(255)  
+ 	"is_voided" boolean  [default: false] 
+ 	"organisation_id" integer   
+ 	"version" integer   
+ 	"audit_id" integer   
+ 	"level" number  [default: 0] 
+ 	"parent_id" integer   
+ } 
+ 
+ Table "audit" {
+ 	"id" integer  [default: `nextval('audit_id_seq'::regclass)`] 
+ 	"uuid" varchar(255)  
+ 	"created_by_id" bigint   
+ 	"last_modified_by_id" bigint   
+ 	"created_date_time" timestamp   
+ 	"last_modified_date_time" timestamp   
+ } 
+ 
+ Table "batch_job_execution" {
+ 	"job_execution_id" bigint   
+ 	"version" bigint   
+ 	"job_instance_id" bigint   
+ 	"create_time" timestamp   
+ 	"start_time" timestamp   
+ 	"end_time" timestamp   
+ 	"status" varchar(10)  
+ 	"exit_code" varchar(2500)  
+ 	"exit_message" varchar(2500)  
+ 	"last_updated" timestamp   
+ 	"job_configuration_location" varchar(2500)  
+ } 
+ 
+ Table "batch_job_execution_context" {
+ 	"job_execution_id" bigint   
+ 	"short_context" varchar(2500)  
+ 	"serialized_context" text   
+ } 
+ 
+ Table "batch_job_execution_params" {
+ 	"job_execution_id" bigint   
+ 	"type_cd" varchar(6)  
+ 	"key_name" varchar(100)  
+ 	"string_val" varchar(250)  
+ 	"date_val" timestamp   
+ 	"long_val" bigint   
+ 	"double_val" number   
+ 	"identifying" character(1)  
+ } 
+ 
+ Table "batch_job_instance" {
+ 	"job_instance_id" bigint   
+ 	"version" bigint   
+ 	"job_name" varchar(100)  
+ 	"job_key" varchar(32)  
+ } 
+ 
+ Table "batch_step_execution" {
+ 	"step_execution_id" bigint   
+ 	"version" bigint   
+ 	"step_name" varchar(100)  
+ 	"job_execution_id" bigint   
+ 	"start_time" timestamp   
+ 	"end_time" timestamp   
+ 	"status" varchar(10)  
+ 	"commit_count" bigint   
+ 	"read_count" bigint   
+ 	"filter_count" bigint   
+ 	"write_count" bigint   
+ 	"read_skip_count" bigint   
+ 	"write_skip_count" bigint   
+ 	"process_skip_count" bigint   
+ 	"rollback_count" bigint   
+ 	"exit_code" varchar(2500)  
+ 	"exit_message" varchar(2500)  
+ 	"last_updated" timestamp   
+ } 
+ 
+ Table "batch_step_execution_context" {
+ 	"step_execution_id" bigint   
+ 	"short_context" varchar(2500)  
+ 	"serialized_context" text   
+ } 
+ 
+ Table "catchment" {
+ 	"id" integer  [default: `nextval('catchment_id_seq'::regclass)`] 
+ 	"name" varchar(255)  
+ 	"uuid" varchar(255)  
+ 	"version" integer   
+ 	"organisation_id" integer  [default: 1] 
+ 	"type" varchar(1024) [default: "'Villages'::character varying"] 
+ 	"audit_id" integer   
+ 	"is_voided" boolean  [default: false] 
+ } 
+ 
+ Table "catchment_address_mapping" {
+ 	"id" integer  [default: `nextval('catchment_address_mapping_id_seq'::regclass)`] 
+ 	"catchment_id" bigint   
+ 	"addresslevel_id" bigint   
+ } 
+ 
+ Table "checklist" {
+ 	"id" integer  [default: `nextval('checklist_id_seq'::regclass)`] 
+ 	"program_enrolment_id" bigint   
+ 	"uuid" varchar(255)  
+ 	"version" integer   
+ 	"base_date" timestamp   
+ 	"organisation_id" integer  [default: 1] 
+ 	"audit_id" integer   
+ 	"is_voided" boolean  [default: false] 
+ 	"checklist_detail_id" integer   
+ } 
+ 
+ Table "checklist_detail" {
+ 	"id" smallint  [default: `nextval('checklist_detail_id_seq'::regclass)`] 
+ 	"uuid" varchar(255)  
+ 	"version" integer   
+ 	"audit_id" integer   
+ 	"name" varchar   
+ 	"is_voided" boolean  [default: false] 
+ 	"organisation_id" integer   
+ } 
+ 
+ Table "checklist_item" {
+ 	"id" integer  [default: `nextval('checklist_item_id_seq'::regclass)`] 
+ 	"completion_date" timestamp   
+ 	"checklist_id" bigint   
+ 	"uuid" varchar(255)  
+ 	"version" integer   
+ 	"organisation_id" integer  [default: 1] 
+ 	"audit_id" integer   
+ 	"is_voided" boolean  [default: false] 
+ 	"observations" jsonb   
+ 	"checklist_item_detail_id" integer   
+ } 
+ 
+ Table "checklist_item_detail" {
+ 	"id" smallint  [default: `nextval('checklist_item_detail_id_seq'::regclass)`] 
+ 	"uuid" varchar(255)  
+ 	"version" integer   
+ 	"audit_id" integer   
+ 	"form_id" integer   
+ 	"concept_id" integer   
+ 	"checklist_detail_id" integer   
+ 	"status" jsonb  [default: '{}'::jsonb] 
+ 	"is_voided" boolean  [default: false] 
+ 	"organisation_id" integer   
+ 	"dependent_on" integer   
+ 	"schedule_on_expiry_of_dependency" boolean  [default: false] 
+ 	"min_days_from_start_date" smallint   
+ 	"min_days_from_dependent" integer   
+ 	"expires_after" integer   
+ } 
+ 
+ Table "concept" {
+ 	"id" integer  [default: `nextval('concept_id_seq'::regclass)`] 
+ 	"data_type" varchar(255)  
+ 	"high_absolute" number   
+ 	"high_normal" number   
+ 	"low_absolute" number   
+ 	"low_normal" number   
+ 	"name" varchar(255)  
+ 	"uuid" varchar(255)  
+ 	"version" integer   
+ 	"unit" varchar(50)  
+ 	"organisation_id" integer  [default: 1] 
+ 	"is_voided" boolean  [default: false] 
+ 	"audit_id" integer   
+ 	"key_values" jsonb   
+ 	"active" boolean  [default: true] 
+ } 
+ 
+ Table "concept_answer" {
+ 	"id" integer  [default: `nextval('concept_answer_id_seq'::regclass)`] 
+ 	"concept_id" bigint   
+ 	"answer_concept_id" bigint   
+ 	"uuid" varchar(255)  
+ 	"version" integer   
+ 	"answer_order" number   
+ 	"organisation_id" integer  [default: 1] 
+ 	"abnormal" boolean  [default: false] 
+ 	"is_voided" boolean  [default: false] 
+ 	"uniq" boolean  [default: false] 
+ 	"audit_id" integer   
+ } 
+ 
+ Table "deps_saved_ddl" {
+ 	"deps_id" integer  [default: `nextval('deps_saved_ddl_deps_id_seq'::regclass)`] 
+ 	"deps_view_schema" varchar(255)  
+ 	"deps_view_name" varchar(255)  
+ 	"deps_ddl_to_run" text   
+ } 
+ 
+ Table "encounter" {
+ 	"id" integer  [default: `nextval('encounter_id_seq'::regclass)`] 
+ 	"observations" jsonb   
+ 	"encounter_date_time" timestamp   
+ 	"encounter_type_id" integer   
+ 	"individual_id" integer   
+ 	"uuid" varchar(255)  
+ 	"version" integer   
+ 	"organisation_id" integer  [default: 1] 
+ 	"is_voided" boolean  [default: false] 
+ 	"audit_id" integer   
+ 	"encounter_location" point   
+ 	"earliest_visit_date_time" timestamp   
+ 	"max_visit_date_time" timestamp   
+ 	"cancel_date_time" timestamp   
+ 	"cancel_observations" jsonb   
+ 	"cancel_location" point   
+ 	"name" text   
+ 	"legacy_id" varchar   
+ } 
+ 
+ Table "encounter_type" {
+ 	"id" integer  [default: `nextval('encounter_type_id_seq'::regclass)`] 
+ 	"name" varchar(255)  
+ 	"concept_id" bigint   
+ 	"uuid" varchar(255)  
+ 	"version" integer   
+ 	"organisation_id" integer  [default: 1] 
+ 	"audit_id" integer   
+ 	"is_voided" boolean  [default: false] 
+ 	"encounter_eligibility_check_rule" text   
+ 	"active" boolean  [default: true] 
+ } 
+ 
+ Table "facility" {
+ 	"id" integer  [default: `nextval('facility_id_seq'::regclass)`] 
+ 	"uuid" varchar(255)  
+ 	"name" varchar(255)  
+ 	"address_id" bigint   
+ 	"is_voided" boolean  [default: false] 
+ 	"organisation_id" integer   
+ 	"version" integer   
+ 	"audit_id" integer   
+ } 
+ 
+ Table "form" {
+ 	"id" integer  [default: `nextval('form_id_seq'::regclass)`] 
+ 	"name" varchar(255)  
+ 	"form_type" varchar(255)  
+ 	"uuid" varchar(255)  
+ 	"version" integer   
+ 	"organisation_id" integer  [default: 1] 
+ 	"audit_id" integer   
+ 	"is_voided" boolean  [default: false] 
+ 	"decision_rule" text   
+ 	"validation_rule" text   
+ 	"visit_schedule_rule" text   
+ 	"checklists_rule" text   
+ } 
+ 
+ Table "form_element" {
+ 	"id" integer  [default: `nextval('form_element_id_seq'::regclass)`] 
+ 	"name" varchar(255)  
+ 	"display_order" number   
+ 	"is_mandatory" boolean  [default: false] 
+ 	"key_values" jsonb   
+ 	"concept_id" bigint   
+ 	"form_element_group_id" bigint   
+ 	"uuid" varchar(255)  
+ 	"version" integer   
+ 	"organisation_id" integer  [default: 1] 
+ 	"type" varchar(1024) [default: "NULL::character varying"] 
+ 	"valid_format_regex" varchar(255)  
+ 	"valid_format_description_key" varchar(255)  
+ 	"audit_id" integer   
+ 	"is_voided" boolean  [default: false] 
+ 	"rule" text   
+ } 
+ 
+ Table "form_element_group" {
+ 	"id" integer  [default: `nextval('form_element_group_id_seq'::regclass)`] 
+ 	"name" varchar(255)  
+ 	"form_id" bigint   
+ 	"uuid" varchar(255)  
+ 	"version" integer   
+ 	"display_order" number  [default: '-1'::integer] 
+ 	"display" varchar(100)  
+ 	"organisation_id" integer  [default: 1] 
+ 	"audit_id" integer   
+ 	"is_voided" boolean  [default: false] 
+ 	"rule" text   
+ } 
+ 
+ Table "form_mapping" {
+ 	"id" integer  [default: `nextval('form_mapping_id_seq'::regclass)`] 
+ 	"form_id" bigint   
+ 	"uuid" varchar(255)  
+ 	"version" integer   
+ 	"entity_id" bigint   
+ 	"observations_type_entity_id" integer   
+ 	"organisation_id" integer  [default: 1] 
+ 	"audit_id" integer   
+ 	"is_voided" boolean  [default: false] 
+ 	"subject_type_id" integer   
+ } 
+ 
+ Table "gender" {
+ 	"id" smallint  [default: `nextval('gender_id_seq'::regclass)`] 
+ 	"uuid" varchar(255)  
+ 	"name" varchar(255)  
+ 	"concept_id" bigint   
+ 	"version" integer   
+ 	"audit_id" integer   
+ 	"is_voided" boolean  [default: false] 
+ 	"organisation_id" integer   
+ } 
+ 
+ Table "group_privilege" {
+ 	"id" integer  [default: `nextval('group_privilege_id_seq'::regclass)`] 
+ 	"uuid" varchar(255)  
+ 	"group_id" integer   
+ 	"privilege_id" integer   
+ 	"subject_type_id" integer   
+ 	"program_id" integer   
+ 	"program_encounter_type_id" integer   
+ 	"encounter_type_id" integer   
+ 	"checklist_detail_id" integer   
+ 	"allow" boolean  [default: false] 
+ 	"is_voided" boolean  [default: false] 
+ 	"version" integer   
+ 	"organisation_id" integer   
+ 	"audit_id" integer   
+ } 
+ 
+ Table "group_role" {
+ 	"id" integer  [default: `nextval('group_role_id_seq'::regclass)`] 
+ 	"uuid" varchar(255)  
+ 	"group_subject_type_id" integer   
+ 	"role" text   
+ 	"member_subject_type_id" integer   
+ 	"is_primary" boolean  [default: false] 
+ 	"maximum_number_of_members" integer   
+ 	"minimum_number_of_members" integer   
+ 	"organisation_id" integer   
+ 	"audit_id" integer   
+ 	"is_voided" boolean  [default: false] 
+ 	"version" integer   
+ } 
+ 
+ Table "group_subject" {
+ 	"id" integer  [default: `nextval('group_subject_id_seq'::regclass)`] 
+ 	"uuid" varchar(255)  
+ 	"group_subject_id" integer   
+ 	"member_subject_id" integer   
+ 	"group_role_id" integer   
+ 	"membership_start_date" timestamp   
+ 	"membership_end_date" timestamp   
+ 	"organisation_id" integer   
+ 	"audit_id" integer   
+ 	"is_voided" boolean  [default: false] 
+ 	"version" integer   
+ } 
+ 
+ Table "groups" {
+ 	"id" integer  [default: `nextval('groups_id_seq'::regclass)`] 
+ 	"uuid" varchar(255)  
+ 	"name" varchar(255)  
+ 	"is_voided" boolean  [default: false] 
+ 	"version" integer   
+ 	"organisation_id" integer   
+ 	"audit_id" integer   
+ 	"has_all_privileges" boolean  [default: false] 
+ } 
+ 
+ Table "identifier_assignment" {
+ 	"id" integer  [default: `nextval('identifier_assignment_id_seq'::regclass)`] 
+ 	"uuid" varchar(255)  
+ 	"identifier_source_id" integer   
+ 	"identifier" text   
+ 	"assignment_order" integer   
+ 	"assigned_to_user_id" integer   
+ 	"individual_id" integer   
+ 	"program_enrolment_id" integer   
+ 	"version" integer   
+ 	"is_voided" boolean  [default: false] 
+ 	"organisation_id" integer  [default: 1] 
+ 	"audit_id" integer   
+ } 
+ 
+ Table "identifier_source" {
+ 	"id" integer  [default: `nextval('identifier_source_id_seq'::regclass)`] 
+ 	"uuid" varchar(255)  
+ 	"name" varchar(255)  
+ 	"type" text   
+ 	"catchment_id" integer   
+ 	"facility_id" integer   
+ 	"minimum_balance" integer  [default: 20] 
+ 	"batch_generation_size" integer  [default: 100] 
+ 	"options" jsonb  [default: '{}'::jsonb] 
+ 	"version" integer   
+ 	"is_voided" boolean  [default: false] 
+ 	"organisation_id" integer  [default: 1] 
+ 	"audit_id" integer   
+ 	"min_length" integer  [default: 0] 
+ 	"max_length" integer  [default: 0] 
+ } 
+ 
+ Table "identifier_user_assignment" {
+ 	"id" integer  [default: `nextval('identifier_user_assignment_id_seq'::regclass)`] 
+ 	"uuid" varchar(255)  
+ 	"identifier_source_id" integer   
+ 	"assigned_to_user_id" integer   
+ 	"identifier_start" text   
+ 	"identifier_end" text   
+ 	"last_assigned_identifier" text   
+ 	"version" integer   
+ 	"is_voided" boolean  [default: false] 
+ 	"organisation_id" integer  [default: 1] 
+ 	"audit_id" integer   
+ } 
+ 
+ Table "individual" {
+ 	"id" integer  [default: `nextval('individual_id_seq'::regclass)`] 
+ 	"uuid" varchar(255)  
+ 	"address_id" bigint   
+ 	"observations" jsonb   
+ 	"version" integer   
+ 	"date_of_birth" date   
+ 	"date_of_birth_verified" boolean   
+ 	"gender_id" bigint   
+ 	"registration_date" date  [default: '2017-01-01'::date] 
+ 	"organisation_id" integer  [default: 1] 
+ 	"first_name" varchar(256)  
+ 	"last_name" varchar(256)  
+ 	"is_voided" boolean  [default: false] 
+ 	"audit_id" integer   
+ 	"facility_id" bigint   
+ 	"registration_location" point   
+ 	"subject_type_id" integer   
+ 	"legacy_id" varchar   
+ } 
+ 
+ Table "individual_relation" {
+ 	"id" smallint  [default: `nextval('individual_relation_id_seq'::regclass)`] 
+ 	"uuid" varchar(255)  
+ 	"name" varchar(255)  
+ 	"is_voided" boolean  [default: false] 
+ 	"organisation_id" integer   
+ 	"version" integer   
+ 	"audit_id" integer   
+ } 
+ 
+ Table "individual_relation_gender_mapping" {
+ 	"id" smallint  [default: `nextval('individual_relation_gender_mapping_id_seq'::regclass)`] 
+ 	"uuid" varchar(255)  
+ 	"relation_id" smallint   
+ 	"gender_id" smallint   
+ 	"is_voided" boolean  [default: false] 
+ 	"organisation_id" integer   
+ 	"version" integer   
+ 	"audit_id" integer   
+ } 
+ 
+ Table "individual_relationship" {
+ 	"id" integer  [default: `nextval('individual_relationship_id_seq'::regclass)`] 
+ 	"uuid" varchar(255)  
+ 	"individual_a_id" bigint   
+ 	"individual_b_id" bigint   
+ 	"relationship_type_id" smallint   
+ 	"enter_date_time" timestamp   
+ 	"exit_date_time" timestamp   
+ 	"exit_observations" jsonb   
+ 	"is_voided" boolean  [default: false] 
+ 	"organisation_id" integer   
+ 	"version" integer   
+ 	"audit_id" integer   
+ } 
+ 
+ Table "individual_relationship_type" {
+ 	"id" smallint  [default: `nextval('individual_relationship_type_id_seq'::regclass)`] 
+ 	"uuid" varchar(255)  
+ 	"name" varchar(255)  
+ 	"individual_a_is_to_b_relation_id" smallint   
+ 	"individual_b_is_to_a_relation_id" smallint   
+ 	"is_voided" boolean  [default: false] 
+ 	"organisation_id" integer   
+ 	"version" integer   
+ 	"audit_id" integer   
+ } 
+ 
+ Table "individual_relative" {
+ 	"id" smallint  [default: `nextval('individual_relative_id_seq'::regclass)`] 
+ 	"uuid" varchar(255)  
+ 	"individual_id" bigint   
+ 	"relative_individual_id" bigint   
+ 	"relation_id" smallint   
+ 	"enter_date_time" timestamp   
+ 	"exit_date_time" timestamp   
+ 	"is_voided" boolean  [default: false] 
+ 	"organisation_id" integer   
+ 	"version" integer   
+ 	"audit_id" integer   
+ } 
+ 
+ Table "location_location_mapping" {
+ 	"id" integer  [default: `nextval('location_location_mapping_id_seq'::regclass)`] 
+ 	"location_id" bigint   
+ 	"parent_location_id" bigint   
+ 	"version" integer   
+ 	"audit_id" bigint   
+ 	"uuid" varchar(255)  
+ 	"is_voided" boolean  [default: false] 
+ 	"organisation_id" bigint   
+ } 
+ 
+ Table "non_applicable_form_element" {
+ 	"id" integer  [default: `nextval('non_applicable_form_element_id_seq'::regclass)`] 
+ 	"organisation_id" bigint   
+ 	"form_element_id" bigint   
+ 	"is_voided" boolean  [default: false] 
+ 	"version" integer  [default: 0] 
+ 	"audit_id" integer   
+ 	"uuid" varchar(255)  
+ } 
+ 
+ Table "operational_encounter_type" {
+ 	"id" integer  [default: `nextval('operational_encounter_type_id_seq'::regclass)`] 
+ 	"uuid" varchar(255)  
+ 	"organisation_id" integer   
+ 	"encounter_type_id" integer   
+ 	"version" integer   
+ 	"audit_id" integer   
+ 	"name" varchar(255)  
+ 	"is_voided" boolean  [default: false] 
+ } 
+ 
+ Table "operational_program" {
+ 	"id" integer  [default: `nextval('operational_program_id_seq'::regclass)`] 
+ 	"uuid" varchar(255)  
+ 	"organisation_id" integer   
+ 	"program_id" integer   
+ 	"version" integer   
+ 	"audit_id" integer   
+ 	"name" varchar(255)  
+ 	"is_voided" boolean  [default: false] 
+ 	"program_subject_label" text   
+ } 
+ 
+ Table "operational_subject_type" {
+ 	"id" integer  [default: `nextval('operational_subject_type_id_seq'::regclass)`] 
+ 	"uuid" varchar(255)  
+ 	"name" varchar(255)  
+ 	"subject_type_id" integer   
+ 	"organisation_id" bigint   
+ 	"is_voided" boolean  [default: false] 
+ 	"audit_id" bigint   
+ 	"version" integer  [default: 1] 
+ } 
+ 
+ Table "organisation" {
+ 	"id" integer  [default: `nextval('organisation_id_seq'::regclass)`] 
+ 	"name" varchar(255)  
+ 	"db_user" varchar(255)  
+ 	"uuid" varchar(255)  
+ 	"parent_organisation_id" integer   
+ 	"is_voided" boolean  [default: false] 
+ 	"media_directory" text   
+ 	"username_suffix" text   
+ 	"account_id" integer  [default: 1] 
+ } 
+ 
+ Table "organisation_config" {
+ 	"id" integer  [default: `nextval('organisation_config_id_seq'::regclass)`] 
+ 	"uuid" varchar(255)  
+ 	"organisation_id" bigint   
+ 	"settings" jsonb   
+ 	"audit_id" bigint   
+ 	"version" integer  [default: 1] 
+ 	"is_voided" boolean  [default: false] 
+ 	"worklist_updation_rule" text   
+ } 
+ 
+ Table "organisation_group" {
+ 	"id" integer  [default: `nextval('organisation_group_id_seq'::regclass)`] 
+ 	"name" varchar(255)  
+ 	"db_user" varchar(255)  
+ 	"account_id" integer   
+ } 
+ 
+ Table "organisation_group_organisation" {
+ 	"id" integer  [default: `nextval('organisation_group_organisation_id_seq'::regclass)`] 
+ 	"name" varchar(255)  
+ 	"organisation_group_id" integer   
+ 	"organisation_id" integer   
+ } 
+ 
+ Table "platform_translation" {
+ 	"id" integer  [default: `nextval('platform_translation_id_seq'::regclass)`] 
+ 	"uuid" varchar(255)  
+ 	"translation_json" jsonb   
+ 	"is_voided" boolean  [default: false] 
+ 	"platform" varchar(255)  
+ 	"language" varchar(255)  
+ 	"created_date_time" timestamp   
+ 	"last_modified_date_time" timestamp   
+ } 
+ 
+ Table "privilege" {
+ 	"id" integer  [default: `nextval('privilege_id_seq'::regclass)`] 
+ 	"uuid" varchar(255)  
+ 	"name" varchar(255)  
+ 	"description" text   
+ 	"entity_type" varchar(255)  
+ 	"is_voided" boolean  [default: false] 
+ 	"created_date_time" timestamp   
+ 	"last_modified_date_time" timestamp   
+ } 
+ 
+ Table "program" {
+ 	"id" smallint  [default: `nextval('program_id_seq'::regclass)`] 
+ 	"uuid" varchar(255)  
+ 	"name" varchar(255)  
+ 	"version" integer   
+ 	"colour" varchar(20)  
+ 	"organisation_id" integer  [default: 1] 
+ 	"audit_id" integer   
+ 	"is_voided" boolean  [default: false] 
+ 	"enrolment_summary_rule" text   
+ 	"enrolment_eligibility_check_rule" text   
+ 	"active" boolean  [default: true] 
+ } 
+ 
+ Table "program_encounter" {
+ 	"id" integer  [default: `nextval('program_encounter_id_seq'::regclass)`] 
+ 	"observations" jsonb   
+ 	"earliest_visit_date_time" timestamp   
+ 	"encounter_date_time" timestamp   
+ 	"program_enrolment_id" integer   
+ 	"uuid" varchar(255)  
+ 	"version" integer   
+ 	"encounter_type_id" integer  [default: 1] 
+ 	"name" varchar(255)  
+ 	"max_visit_date_time" timestamp   
+ 	"organisation_id" integer  [default: 1] 
+ 	"cancel_date_time" timestamp   
+ 	"cancel_observations" jsonb   
+ 	"audit_id" integer   
+ 	"is_voided" boolean  [default: false] 
+ 	"encounter_location" point   
+ 	"cancel_location" point   
+ 	"legacy_id" varchar   
+ } 
+ 
+ Table "program_enrolment" {
+ 	"id" integer  [default: `nextval('program_enrolment_id_seq'::regclass)`] 
+ 	"program_id" smallint   
+ 	"individual_id" bigint   
+ 	"program_outcome_id" smallint   
+ 	"observations" jsonb   
+ 	"program_exit_observations" jsonb   
+ 	"enrolment_date_time" timestamp   
+ 	"program_exit_date_time" timestamp   
+ 	"uuid" varchar(255)  
+ 	"version" integer   
+ 	"organisation_id" integer  [default: 1] 
+ 	"audit_id" integer   
+ 	"is_voided" boolean  [default: false] 
+ 	"enrolment_location" point   
+ 	"exit_location" point   
+ 	"legacy_id" varchar   
+ } 
+ 
+ Table "program_organisation_config" {
+ 	"id" integer  [default: `nextval('program_organisation_config_id_seq'::regclass)`] 
+ 	"uuid" varchar(255)  
+ 	"program_id" bigint   
+ 	"organisation_id" bigint   
+ 	"visit_schedule" jsonb   
+ 	"version" integer   
+ 	"audit_id" integer   
+ 	"is_voided" boolean  [default: false] 
+ } 
+ 
+ Table "program_organisation_config_at_risk_concept" {
+ 	"id" integer  [default: `nextval('program_organisation_config_at_risk_concept_id_seq'::regclass)`] 
+ 	"program_organisation_config_id" integer   
+ 	"concept_id" integer   
+ } 
+ 
+ Table "program_outcome" {
+ 	"id" integer  [default: `nextval('program_outcome_id_seq'::regclass)`] 
+ 	"uuid" varchar(255)  
+ 	"name" varchar(255)  
+ 	"version" integer   
+ 	"organisation_id" integer  [default: 1] 
+ 	"audit_id" integer   
+ 	"is_voided" boolean  [default: false] 
+ } 
+ 
+ Table "rule" {
+ 	"id" smallint  [default: `nextval('rule_id_seq'::regclass)`] 
+ 	"uuid" varchar(255)  
+ 	"version" integer   
+ 	"audit_id" integer   
+ 	"type" varchar   
+ 	"rule_dependency_id" integer   
+ 	"name" varchar   
+ 	"fn_name" varchar   
+ 	"data" jsonb   
+ 	"organisation_id" integer   
+ 	"execution_order" number  [default: 10000.0] 
+ 	"is_voided" boolean  [default: false] 
+ 	"entity" jsonb   
+ } 
+ 
+ Table "rule_dependency" {
+ 	"id" smallint  [default: `nextval('rule_dependency_id_seq'::regclass)`] 
+ 	"uuid" varchar(255)  
+ 	"version" integer   
+ 	"audit_id" integer   
+ 	"checksum" varchar   
+ 	"code" text   
+ 	"organisation_id" integer   
+ 	"is_voided" boolean  [default: false] 
+ } 
+ 
+ Table "rule_failure_log" {
+ 	"id" integer  [default: `nextval('rule_failure_log_id_seq'::regclass)`] 
+ 	"uuid" varchar(255)  
+ 	"form_id" varchar(255)  
+ 	"rule_type" varchar(255)  
+ 	"entity_type" varchar(255)  
+ 	"entity_id" varchar(255)  
+ 	"error_message" varchar(255)  
+ 	"stacktrace" text   
+ 	"source" varchar(255)  
+ 	"audit_id" integer   
+ 	"is_voided" boolean  [default: false] 
+ 	"version" integer   
+ 	"organisation_id" bigint   
+ } 
+ 
+ Table "rule_failure_telemetry" {
+ 	"id" integer  [default: `nextval('rule_failure_telemetry_id_seq'::regclass)`] 
+ 	"uuid" varchar(255)  
+ 	"user_id" integer   
+ 	"organisation_id" bigint   
+ 	"version" integer  [default: 1] 
+ 	"rule_uuid" varchar(255)  
+ 	"individual_uuid" varchar(255)  
+ 	"error_message" varchar(255)  
+ 	"stacktrace" text   
+ 	"error_date_time" timestamp   
+ 	"close_date_time" timestamp   
+ 	"is_closed" boolean  [default: false] 
+ 	"audit_id" bigint   
+ } 
+ 
+ Table "schema_version" {
+ 	"installed_rank" integer   
+ 	"version" varchar(50)  
+ 	"description" varchar(200)  
+ 	"type" varchar(20)  
+ 	"script" varchar(1000)  
+ 	"checksum" integer   
+ 	"installed_by" varchar(100)  
+ 	"installed_on" timestamp  [default: `now()`] 
+ 	"execution_time" integer   
+ 	"success" boolean   
+ } 
+ 
+ Table "subject_type" {
+ 	"id" integer  [default: `nextval('subject_type_id_seq'::regclass)`] 
+ 	"uuid" varchar(255)  
+ 	"name" varchar(255)  
+ 	"organisation_id" bigint   
+ 	"is_voided" boolean  [default: false] 
+ 	"audit_id" bigint   
+ 	"version" integer  [default: 1] 
+ 	"is_group" boolean  [default: false] 
+ 	"is_household" boolean  [default: false] 
+ 	"active" boolean  [default: true] 
+ 	"type" varchar(255)  
+ } 
+ 
+ Table "sync_telemetry" {
+ 	"id" integer  [default: `nextval('sync_telemetry_id_seq'::regclass)`] 
+ 	"uuid" varchar(255)  
+ 	"user_id" integer   
+ 	"organisation_id" bigint   
+ 	"version" integer  [default: 1] 
+ 	"sync_status" varchar(255)  
+ 	"sync_start_time" timestamp   
+ 	"sync_end_time" timestamp   
+ 	"entity_status" jsonb   
+ 	"device_name" varchar(255)  
+ 	"android_version" varchar(255)  
+ 	"app_version" varchar(255)  
+ } 
+ 
+ Table "translation" {
+ 	"id" integer  [default: `nextval('translation_id_seq'::regclass)`] 
+ 	"uuid" varchar(255)  
+ 	"organisation_id" bigint   
+ 	"audit_id" bigint   
+ 	"version" integer  [default: 1] 
+ 	"translation_json" jsonb   
+ 	"is_voided" boolean  [default: false] 
+ 	"language" varchar(255)  
+ } 
+ 
+ Table "user_facility_mapping" {
+ 	"id" integer  [default: `nextval('user_facility_mapping_id_seq'::regclass)`] 
+ 	"version" integer  [default: 1] 
+ 	"audit_id" bigint   
+ 	"uuid" varchar(255)  
+ 	"is_voided" boolean  [default: false] 
+ 	"organisation_id" bigint   
+ 	"facility_id" bigint   
+ 	"user_id" bigint   
+ } 
+ 
+ Table "user_group" {
+ 	"id" integer  [default: `nextval('user_group_id_seq'::regclass)`] 
+ 	"uuid" varchar(255)  
+ 	"user_id" integer   
+ 	"group_id" integer   
+ 	"is_voided" boolean  [default: false] 
+ 	"version" integer   
+ 	"organisation_id" integer   
+ 	"audit_id" integer   
+ } 
+ 
+ Table "users" {
+ 	"id" integer  [default: `nextval('users_id_seq'::regclass)`] 
+ 	"uuid" varchar(255)  
+ 	"username" varchar(255)  
+ 	"organisation_id" integer   
+ 	"created_by_id" bigint  [default: 1] 
+ 	"last_modified_by_id" bigint  [default: 1] 
+ 	"created_date_time" timestamp  [default: `now()`] 
+ 	"last_modified_date_time" timestamp  [default: `now()`] 
+ 	"is_voided" boolean  [default: false] 
+ 	"catchment_id" integer   
+ 	"is_org_admin" boolean  [default: false] 
+ 	"operating_individual_scope" varchar(255)  
+ 	"settings" jsonb   
+ 	"email" varchar(320)  
+ 	"phone_number" varchar(32)  
+ 	"disabled_in_cognito" boolean  [default: false] 
+ 	"name" varchar(255)  
+ } 
+ 
+ Table "video" {
+ 	"id" integer  [default: `nextval('video_id_seq'::regclass)`] 
+ 	"version" integer  [default: 1] 
+ 	"audit_id" bigint   
+ 	"uuid" varchar(255)  
+ 	"organisation_id" bigint   
+ 	"title" varchar(255)  
+ 	"file_path" varchar(255)  
+ 	"description" varchar(255)  
+ 	"duration" integer   
+ 	"is_voided" boolean  [default: false] 
+ } 
+ 
+ Table "video_telemetric" {
+ 	"id" integer  [default: `nextval('video_telemetric_id_seq'::regclass)`] 
+ 	"uuid" varchar(255)  
+ 	"video_start_time" number   
+ 	"video_end_time" number   
+ 	"player_open_time" timestamp   
+ 	"player_close_time" timestamp   
+ 	"video_id" integer   
+ 	"user_id" integer   
+ 	"created_datetime" timestamp   
+ 	"organisation_id" integer   
+ 	"is_voided" boolean  [default: false] 
+ } 
+ 
+  
+ 
