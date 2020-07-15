@@ -6,7 +6,7 @@
  	"organisation_id" bigint
  	"visit_schedule" jsonb
  	"version" integer
- 	"audit_id" integer   [ref: > audit.id]
+ 	"audit_id" integer
  	"is_voided" boolean  [default: false]
  }
 
@@ -21,23 +21,23 @@
  	"uuid" varchar(255)
  	"name" varchar(255)
  	"version" integer
- 	"organisation_id" integer  [default: 1, ref: > organisation.id]
- 	"audit_id" integer   [ref: > audit.id]
+ 	"organisation_id" integer  [default: 1]
+ 	"audit_id" integer
  	"is_voided" boolean  [default: false]
  }
 
  Table "individual_relative" {
   	"id" smallint  [default: `nextval('individual_relative_id_seq'::regclass)`]
   	"uuid" varchar(255)
-  	"individual_id" bigint [ref: > individual.id]
-  	"relative_individual_id" bigint [ref: > individual.id]
+  	"individual_id" bigint
+  	"relative_individual_id" bigint
   	"relation_id" smallint
   	"enter_date_time" timestamp
   	"exit_date_time" timestamp
   	"is_voided" boolean  [default: false]
   	"organisation_id" integer
   	"version" integer
-  	"audit_id" integer   [ref: > audit.id]
+  	"audit_id" integer
   }
 
 TableGroup "Unused tables" {
