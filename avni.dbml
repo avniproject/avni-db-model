@@ -651,7 +651,7 @@ Table "individual" {
   	"id" integer  [default: `nextval('program_enrolment_id_seq'::regclass)`]
   	"program_id" smallint [ref: > program.id]
   	"individual_id" bigint [ref: > individual.id]
-  	"program_outcome_id" smallint [ref: > program_outcome.id]
+  	"program_outcome_id" smallint [note: 'Unused column']
   	"observations" jsonb
   	"program_exit_observations" jsonb
   	"enrolment_date_time" timestamp
@@ -840,58 +840,6 @@ TableGroup "Translations" {
     platform_translation
     translation
 }
-
-
-
-// Un-used
- Table "program_organisation_config" {
- 	"id" integer  [default: `nextval('program_organisation_config_id_seq'::regclass)`] 
- 	"uuid" varchar(255)  
- 	"program_id" bigint   
- 	"organisation_id" bigint   
- 	"visit_schedule" jsonb   
- 	"version" integer   
- 	"audit_id" integer   [ref: > audit.id]   
- 	"is_voided" boolean  [default: false] 
- } 
- 
- Table "program_organisation_config_at_risk_concept" {
- 	"id" integer  [default: `nextval('program_organisation_config_at_risk_concept_id_seq'::regclass)`] 
- 	"program_organisation_config_id" integer   
- 	"concept_id" integer   
- } 
- 
- Table "program_outcome" {
- 	"id" integer  [default: `nextval('program_outcome_id_seq'::regclass)`] 
- 	"uuid" varchar(255)  
- 	"name" varchar(255)  
- 	"version" integer   
- 	"organisation_id" integer  [default: 1, ref: > organisation.id] 
- 	"audit_id" integer   [ref: > audit.id]   
- 	"is_voided" boolean  [default: false] 
- }
-
- Table "individual_relative" {
-  	"id" smallint  [default: `nextval('individual_relative_id_seq'::regclass)`]
-  	"uuid" varchar(255)
-  	"individual_id" bigint [ref: > individual.id]
-  	"relative_individual_id" bigint [ref: > individual.id]
-  	"relation_id" smallint
-  	"enter_date_time" timestamp
-  	"exit_date_time" timestamp
-  	"is_voided" boolean  [default: false]
-  	"organisation_id" integer
-  	"version" integer
-  	"audit_id" integer   [ref: > audit.id]
-  }
-
-TableGroup "Unused tables" {
-    program_organisation_config
-    program_organisation_config_at_risk_concept
-    program_outcome
-        individual_relative
- }
-
 
 
 
