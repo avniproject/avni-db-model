@@ -6,6 +6,7 @@
  	"last_modified_by_id" bigint [ref: > users.id]
  	"created_date_time" timestamp
  	"last_modified_date_time" timestamp
+ 	Note: 'A common table for audit information of all other tables - except a few where the table themselves keep the audit information. It is not an audit log of all changes over the life time of a table row - rather it is only creation and last modification information.'
  }
 
 
@@ -41,18 +42,20 @@ Table "organisation_group" {
  	"name" varchar(255)
  	"organisation_group_id" integer [ref: > organisation_group.id]
  	"organisation_id" integer [ref: > organisation.id]
+ 	Note: ''
  }
 
 Table "organisation" {
   	"id" integer  [default: `nextval('organisation_id_seq'::regclass)`]
   	"name" varchar(255)
-  	"db_user" varchar(255)
+  	"db_user" varchar(255) [note: 'The database user for this organisation. using row-level security this database user is provided only access to organisational data.']
   	"uuid" varchar(255)
   	"parent_organisation_id" integer [ref: > organisation.id]
   	"is_voided" boolean  [default: false]
-  	"media_directory" text
-  	"username_suffix" text
+  	"media_directory" text [note: 'Name of the director in S3 where this organisation's files are stored']
+  	"username_suffix" text [note: 'The suffix which is appended to each user in the organisation, to keep them unique across organisations']
   	"account_id" integer  [default: 1, ref: > account.id]
+  	Note: 'Organisation which is using the Avni (or a tenant in a multi-tenant system). If you are logged in using organisation database user you will see only your organisation or group if you are master organisation in the group.'
   }
 
 TableGroup Organisation {
@@ -191,7 +194,7 @@ Table "user_facility_mapping" {
 
 
 
-// User defined data model
+// User-defined data model
 
  Table "concept" {
  	"id" integer  [default: `nextval('concept_id_seq'::regclass)`]
@@ -371,7 +374,7 @@ Table "non_applicable_form_element" {
  	"version" integer  [default: 1]
  }
 
- TableGroup "User defined data" {
+ TableGroup "User-defined data model" {
     concept
     concept_answer
     form
