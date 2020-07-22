@@ -52,7 +52,7 @@ Table "organisation" {
   	"uuid" varchar(255)
   	"parent_organisation_id" integer [ref: > organisation.id]
   	"is_voided" boolean  [default: false]
-  	"media_directory" text [note: 'Name of the director in S3 where this organisation's files are stored']
+  	"media_directory" text [note: "Name of the directory in S3 where this organisations files are stored"]
   	"username_suffix" text [note: 'The suffix which is appended to each user in the organisation, to keep them unique across organisations']
   	"account_id" integer  [default: 1, ref: > account.id]
   	Note: 'Organisation which is using the Avni (or a tenant in a multi-tenant system). If you are logged in using organisation database user you will see only your organisation or group if you are master organisation in the group.'
@@ -77,8 +77,9 @@ TableGroup Organisation {
  	"audit_id" integer   [ref: > audit.id]
  	"is_voided" boolean  [default: false] 
  	"type_id" integer [ref: > address_level_type.id]
-// 	"lineage" USER-DEFINED
+ 	"lineage" varchar [note: 'Postgres ltree data type. Since address levels can be hierarchical like district-block-village, this column helps in querying such information easy. This is semantically duplicate of parent_id based hierarchy.']
  	"parent_id" integer [ref: > address_level.id]
+ 	Note: 'In Avni this is also referred to as location in some places.'
  }
 
  Table "address_level_type" {
@@ -102,6 +103,7 @@ TableGroup Organisation {
    	"type" varchar(1024) [default: "'Villages'::character varying"]
    	"audit_id" integer   [ref: > audit.id]
    	"is_voided" boolean  [default: false]
+   	Note: 'Catchment is a group of locations constructed to assign to users as their work area. catchment_address_mapping table is used to create this relationship.'
    }
 
 Table "catchment_address_mapping" {
@@ -119,6 +121,7 @@ Table "catchment_address_mapping" {
  	"organisation_id" integer [ref: > organisation.id]
  	"version" integer
  	"audit_id" integer   [ref: > audit.id]
+ 	Note: 'Users can be working in a facility. Facility table is not fully used in Avni and hence the design may change over time.'
  }
 
   Table "location_location_mapping" {
@@ -198,20 +201,21 @@ Table "user_facility_mapping" {
 
  Table "concept" {
  	"id" integer  [default: `nextval('concept_id_seq'::regclass)`]
- 	"data_type" varchar(255)
- 	"high_absolute" number
- 	"high_normal" number
- 	"low_absolute" number
- 	"low_normal" number
+ 	"data_type" varchar(255) [note: 'Name of data types like text, date, etc. Full list here https://avni.readme.io/docs/concepts']
+ 	"high_absolute" number [note: 'Highest value that is valid, for numeric data type']
+ 	"high_normal" number [note: 'Value above which it should be considered abnormal, for numeric data type']
+ 	"low_absolute" number [note: 'Lowest value that is valid for numeric data type, for numeric data type']
+ 	"low_normal" number [note: 'Value below which it should be considered abnormal, for numeric data type']
  	"name" varchar(255)
  	"uuid" varchar(255)
  	"version" integer
- 	"unit" varchar(50)
+ 	"unit" varchar(50) [note: 'Unit in which the numeric value is captured. e.g. mg/ml, fahrenheit']
  	"organisation_id" integer  [default: 1 ,ref: > organisation.id]
  	"is_voided" boolean  [default: false]
  	"audit_id" integer   [ref: > audit.id]
  	"key_values" jsonb
  	"active" boolean  [default: true]
+ 	Note: "A concept when its data type is 'Coded' can have answers which are other concepts."
  }
 
  Table "concept_answer" {
@@ -226,6 +230,7 @@ Table "user_facility_mapping" {
  	"is_voided" boolean  [default: false]
  	"uniq" boolean  [default: false]
  	"audit_id" integer   [ref: > audit.id]
+ 	Note: "A concept when its data type is 'Coded' can have answers which are other concepts."
  }
 
  Table "program" {
@@ -233,14 +238,22 @@ Table "user_facility_mapping" {
  	"uuid" varchar(255)
  	"name" varchar(255)
  	"version" integer
- 	"colour" varchar(20)
+ 	"colour" varchar(20) [note: 'Colour to be used in the apps for this program. Users should ideally assign different colors to different programs.']
  	"organisation_id" integer  [default: 1, ref: > organisation.id]
  	"audit_id" integer   [ref: > audit.id]
  	"is_voided" boolean  [default: false]
- 	"enrolment_summary_rule" text
- 	"enrolment_eligibility_check_rule" text
+ 	"enrolment_summary_rule" text [note: 'Blob of the rule. About the rule - https://avni.readme.io/docs/writing-rules#1-enrolment-summary-rule']
+ 	"enrolment_eligibility_check_rule" text [note: 'Blob of the rule. About the rule - https://avni.readme.io/docs/writing-rules#7-enrolment-eligibility-check-rule']
  	"active" boolean  [default: true]
+ 	Note: 'Explained here in section 2 and 4 - https://avni.readme.io/docs/avnis-domain-model-of-field-based-work'
  }
+
+enum subject_type_type {
+    Group
+    Individual
+    Person
+    Household
+}
 
  Table "subject_type" {
    	"id" integer  [default: `nextval('subject_type_id_seq'::regclass)`]
@@ -253,8 +266,20 @@ Table "user_facility_mapping" {
    	"is_group" boolean  [default: false]
    	"is_household" boolean  [default: false]
    	"active" boolean  [default: true]
-   	"type" varchar(255)
+   	"type" subject_type_type
+   	Note: 'Explained in section 2 and 4 - https://avni.readme.io/docs/avnis-domain-model-of-field-based-work. Note that, apart from Individual and Person subject types, Avni also models groups and household using subject_type table.'
    }
+
+enum form_type {
+    IndividualProfile
+    ProgramEncounterCancellation
+    Encounter
+    ProgramEnrolment
+    ProgramEncounter
+    ProgramExit
+    ChecklistItem
+    IndividualEncounterCancellation
+}
 
  Table "encounter_type" {
  	"id" integer  [default: `nextval('encounter_type_id_seq'::regclass)`]
@@ -265,29 +290,46 @@ Table "user_facility_mapping" {
  	"organisation_id" integer  [default: 1, ref: > organisation.id]
  	"audit_id" integer   [ref: > audit.id]
  	"is_voided" boolean  [default: false]
- 	"encounter_eligibility_check_rule" text
+ 	"encounter_eligibility_check_rule" text [note: 'Rule code as blob. About the rule - https://avni.readme.io/docs/writing-rules#8-encounter-eligibility-check-rule']
  	"active" boolean  [default: true]
+ 	Note: 'Explained here in section 2 and 4 - https://avni.readme.io/docs/avnis-domain-model-of-field-based-work'
  }
+
+ Table "group_role" {
+   	"id" integer  [default: `nextval('group_role_id_seq'::regclass)`]
+   	"uuid" varchar(255)
+   	"group_subject_type_id" integer [ref: > subject_type.id]
+   	"role" text
+   	"member_subject_type_id" integer   [ref: > subject_type.id]
+   	"is_primary" boolean  [default: false]
+   	"maximum_number_of_members" integer
+   	"minimum_number_of_members" integer
+   	"organisation_id" integer   [ref: > organisation.id]
+   	"audit_id" integer   [ref: > audit.id]
+   	"is_voided" boolean  [default: false]
+   	"version" integer
+   	Note: 'Roles subject play within a group. e.g. Head-of-household, family-member are different roles within a household. Or captain, vice-captain within a sports team.'
+   }
 
  Table "form" {
  	"id" integer  [default: `nextval('form_id_seq'::regclass)`]
  	"name" varchar(255)
- 	"form_type" varchar(255)
+ 	"form_type" form_type [note: 'varchar(255)']
  	"uuid" varchar(255)
  	"version" integer
  	"organisation_id" integer  [default: 1, ref: > organisation.id]
  	"audit_id" integer   [ref: > audit.id]
  	"is_voided" boolean  [default: false]
- 	"decision_rule" text
- 	"validation_rule" text
- 	"visit_schedule_rule" text
- 	"checklists_rule" text
+ 	"decision_rule" text [note: 'Rule code as blob. About the rule - https://avni.readme.io/docs/writing-rules#5-decision-rule']
+ 	"validation_rule" text [note: 'Rule code as blob. About the rule - https://avni.readme.io/docs/writing-rules#6-validation-rule']
+ 	"visit_schedule_rule" text [note: 'Rule code as blob. About the rule - https://avni.readme.io/docs/writing-rules#4-visit-schedule-rule']
+ 	"checklists_rule" text [note: 'Rule code as blob. About the rule - https://avni.readme.io/docs/writing-rules#9-checklists-rule']
  }
 
  Table "form_element" {
  	"id" integer  [default: `nextval('form_element_id_seq'::regclass)`]
  	"name" varchar(255)
- 	"display_order" number
+ 	"display_order" number [note: 'Display order within a form element group']
  	"is_mandatory" boolean  [default: false]
  	"key_values" jsonb
  	"concept_id" bigint   [ref: > concept.id]
@@ -297,10 +339,11 @@ Table "user_facility_mapping" {
  	"organisation_id" integer  [default: 1, ref: > organisation.id]
  	"type" varchar(1024) [default: "NULL::character varying"]
  	"valid_format_regex" varchar(255)
- 	"valid_format_description_key" varchar(255)
+ 	"valid_format_description_key" varchar(255) [note: 'Message key to use when the validation based on valid_format_regex fails']
  	"audit_id" integer   [ref: > audit.id]
  	"is_voided" boolean  [default: false]
- 	"rule" text
+ 	"rule" text [note: 'Rule code as blob. About the rule - https://avni.readme.io/docs/writing-rules#2-form-element-rule']
+ 	Note: 'Represents a field in the form element group or page'
  }
 
  Table "form_element_group" {
@@ -309,25 +352,27 @@ Table "user_facility_mapping" {
  	"form_id" bigint [ref: > form.id]
  	"uuid" varchar(255)
  	"version" integer
- 	"display_order" number  [default: "-1"]
- 	"display" varchar(100)
+ 	"display_order" number  [default: "-1", note: 'display order of the form element group within a form (page number)']
+ 	"display" varchar(100) [note: 'Text displayed to the user as title of this form element group']
  	"organisation_id" integer  [default: 1, ref: > organisation.id]
  	"audit_id" integer   [ref: > audit.id]
  	"is_voided" boolean  [default: false]
- 	"rule" text
+ 	"rule" text [note: 'Rule code as blob. About the rule - https://avni.readme.io/docs/writing-rules#3-form-element-group-rule']
+ 	Note: 'Represents a page in the form'
  }
 
  Table "form_mapping" {
   	"id" integer  [default: `nextval('form_mapping_id_seq'::regclass)`]
-  	"form_id" bigint [ref: > form.id]
+  	"form_id" bigint [ref: > form.id, note: "Form for which this mapping is defined"]
   	"uuid" varchar(255)
   	"version" integer
-  	"entity_id" bigint
-  	"observations_type_entity_id" integer
+  	"entity_id" bigint [note: 'id of subject_type, encounter_type or program for which this form is to be used']
+  	"observations_type_entity_id" integer [note: 'id of encounter_type or program']
   	"organisation_id" integer  [default: 1, ref: > organisation.id]
   	"audit_id" integer   [ref: > audit.id]
   	"is_voided" boolean  [default: false]
-  	"subject_type_id" integer
+  	"subject_type_id" integer [ref: > subject_type.id]
+  	Note: 'Maps the form to subject_type, encounter_type or program. More documentation here - https://avni.readme.io/docs/form-mapping'
   }
 
 Table "non_applicable_form_element" {
@@ -338,6 +383,7 @@ Table "non_applicable_form_element" {
  	"version" integer  [default: 0]
  	"audit_id" integer   [ref: > audit.id]
  	"uuid" varchar(255)
+ 	Note: 'This table is used for form elements which are removed. This table is design wise redundant, though still used. It existed because earlier Avni allowed forms to be shared across organisations, hence it needed to maintain for which organisation form element was removed.'
  }
 
  Table "operational_encounter_type" {
@@ -349,6 +395,7 @@ Table "non_applicable_form_element" {
  	"audit_id" integer   [ref: > audit.id]
  	"name" varchar(255)
  	"is_voided" boolean  [default: false]
+ 	Note: 'This table is design wise redundant, though still used. It existed because earlier Avni allowed encounter types to be shared across organisations, hence it needed to maintain which organisations are using the encounter type.'
  }
 
  Table "operational_program" {
@@ -361,6 +408,7 @@ Table "non_applicable_form_element" {
  	"name" varchar(255)
  	"is_voided" boolean  [default: false]
  	"program_subject_label" text
+ 	Note: 'This table is design wise redundant, though still used. It existed because earlier Avni allowed program to be shared across organisations, hence it needed to maintain which organisations are using the which program.'
  }
 
  Table "operational_subject_type" {
@@ -372,6 +420,7 @@ Table "non_applicable_form_element" {
  	"is_voided" boolean  [default: false]
  	"audit_id" bigint [ref: > audit.id]
  	"version" integer  [default: 1]
+ 	Note: 'This table is design wise redundant, though still used. It existed because earlier Avni allowed subject type to be shared across organisations, hence it needed to maintain which organisations are using which subject type.'
  }
 
  TableGroup "User-defined data model" {
@@ -384,11 +433,11 @@ Table "non_applicable_form_element" {
     subject_type
     program
     encounter_type
+    group_role
     operational_encounter_type
     operational_program
     operational_subject_type
  }
-
 
 
 
@@ -402,13 +451,14 @@ Table "non_applicable_form_element" {
  	"organisation_id" integer [ref: > organisation.id]
  	"version" integer
  	"audit_id" integer   [ref: > audit.id]
+ 	Note: 'You can setup relations like Son, Daughter, Mother, Cousin etc, here.'
  }
 
  Table "gender" {
   	"id" smallint  [default: `nextval('gender_id_seq'::regclass)`]
   	"uuid" varchar(255)
   	"name" varchar(255)
-  	"concept_id" bigint [ref: > concept.id]
+  	"concept_id" bigint [ref: > concept.id, note: 'Deprecated and unused']
   	"version" integer
   	"audit_id" integer   [ref: > audit.id]
   	"is_voided" boolean  [default: false]
@@ -418,27 +468,29 @@ Table "non_applicable_form_element" {
 Table "individual_relation_gender_mapping" {
  	"id" smallint  [default: `nextval('individual_relation_gender_mapping_id_seq'::regclass)`]
  	"uuid" varchar(255)
- 	"relation_id" smallint
+ 	"relation_id" smallint [ref: > individual_relation.id]
  	"gender_id" smallint [ref: > gender.id]
  	"is_voided" boolean  [default: false]
  	"organisation_id" integer [ref: > organisation.id]
  	"version" integer
  	"audit_id" integer   [ref: > audit.id]
+ 	Note: 'Specifying the gender which a relation can assume. e.g. Mother should be Female. Or Spouse can be Male, Female, Other.'
  }
 
  Table "individual_relationship_type" {
  	"id" smallint  [default: `nextval('individual_relationship_type_id_seq'::regclass)`]
  	"uuid" varchar(255)
- 	"name" varchar(255)
- 	"individual_a_is_to_b_relation_id" smallint
- 	"individual_b_is_to_a_relation_id" smallint
+ 	"name" varchar(255) [note: 'e.g. mother-daughter']
+ 	"individual_a_is_to_b_relation_id" smallint [ref: > individual_relation.id]
+ 	"individual_b_is_to_a_relation_id" smallint [ref: > individual_relation.id]
  	"is_voided" boolean  [default: false]
  	"organisation_id" integer [ref: > organisation.id]
  	"version" integer
  	"audit_id" integer   [ref: > audit.id]
+ 	Note: 'These are paired relationship names. individual_a_is_to_b_relation_id and individual_b_is_to_a_relation_id columns refer to each individual relation. e.g. mother-daughter.'
  }
 
- TableGroup "Prepackaged data" {
+ TableGroup "Core master data" {
     individual_relation
     gender
     individual_relation_gender_mapping
@@ -555,12 +607,11 @@ TableGroup Rules {
 
 
 
-
 // Transaction data
 
  Table "encounter" {
  	"id" integer  [default: `nextval('encounter_id_seq'::regclass)`] 
- 	"observations" jsonb   
+ 	"observations" jsonb [note: 'Please check here - https://dash.readme.io/project/avni/v2.0/docs/observation-data-model']
  	"encounter_date_time" timestamp   
  	"encounter_type_id" integer [ref: > encounter_type.id]   
  	"individual_id" integer   [ref: > individual.id]
@@ -569,30 +620,15 @@ TableGroup Rules {
  	"organisation_id" integer  [default: 1, ref: > organisation.id] 
  	"is_voided" boolean  [default: false] 
  	"audit_id" integer   [ref: > audit.id]   
- 	"encounter_location" point   
- 	"earliest_visit_date_time" timestamp   
- 	"max_visit_date_time" timestamp   
- 	"cancel_date_time" timestamp   
- 	"cancel_observations" jsonb   
- 	"cancel_location" point   
+ 	"encounter_location" point [note: 'Geolocation of where the encounter took place']
+ 	"earliest_visit_date_time" timestamp   [note: 'Scheduled date of the encounter. This is nullable because the user can perform non scheduled encounters also.']
+ 	"max_visit_date_time" timestamp   [note: 'Date after which the encounter expires']
+ 	"cancel_date_time" timestamp  [note: 'DateTime when this scheduled encounter was cancelled']
+ 	"cancel_observations" jsonb  [note: 'Observations made when cancelling the encounter. Please check here - https://dash.readme.io/project/avni/v2.0/docs/observation-data-model']
+ 	"cancel_location" point [note: 'Geolocation of where the cancellation took place']
  	"name" text   
  	"legacy_id" varchar   
  }
-
- Table "group_role" {
-  	"id" integer  [default: `nextval('group_role_id_seq'::regclass)`]
-  	"uuid" varchar(255)
-  	"group_subject_type_id" integer [ref: > subject_type.id]
-  	"role" text
-  	"member_subject_type_id" integer   [ref: > subject_type.id]
-  	"is_primary" boolean  [default: false]
-  	"maximum_number_of_members" integer
-  	"minimum_number_of_members" integer
-  	"organisation_id" integer   [ref: > organisation.id]
-  	"audit_id" integer   [ref: > audit.id]
-  	"is_voided" boolean  [default: false]
-  	"version" integer
-  }
 
   Table "group_subject" {
   	"id" integer  [default: `nextval('group_subject_id_seq'::regclass)`]
@@ -606,13 +642,14 @@ TableGroup Rules {
   	"audit_id" integer   [ref: > audit.id]
   	"is_voided" boolean  [default: false]
   	"version" integer
+  	Note: 'Group of individuals/subjects'
   }
 
 Table "individual" {
  	"id" integer  [default: `nextval('individual_id_seq'::regclass)`]
  	"uuid" varchar(255)
  	"address_id" bigint [ref: > address_level.id]
- 	"observations" jsonb
+ 	"observations" jsonb  [note: 'For internal structure of the observations - https://dash.readme.io/project/avni/v2.0/docs/observation-data-model']
  	"version" integer
  	"date_of_birth" date
  	"date_of_birth_verified" boolean
@@ -624,29 +661,29 @@ Table "individual" {
  	"is_voided" boolean  [default: false]
  	"audit_id" integer   [ref: > audit.id]
  	"facility_id" bigint [ref: > facility.id]
- 	"registration_location" point
+ 	"registration_location" point [note: 'Geolocation of where the registration took place']
  	"subject_type_id" integer [ref: > subject_type.id]
  	"legacy_id" varchar
  }
 
   Table "program_encounter" {
   	"id" integer  [default: `nextval('program_encounter_id_seq'::regclass)`]
-  	"observations" jsonb
-  	"earliest_visit_date_time" timestamp
+  	"observations" jsonb [note: 'For internal structure of the observations - https://dash.readme.io/project/avni/v2.0/docs/observation-data-model']
+  	"earliest_visit_date_time" timestamp [note: 'Scheduled date of the encounter. This is nullable because the user can perform non scheduled encounters also.']
   	"encounter_date_time" timestamp
   	"program_enrolment_id" integer [ref: > program_enrolment.id]
   	"uuid" varchar(255)
   	"version" integer
   	"encounter_type_id" integer  [default: 1, ref: > encounter_type.id]
-  	"name" varchar(255)
-  	"max_visit_date_time" timestamp
+  	"name" varchar(255) [note: 'If this specific encounter was given a title on top of encounter type name. e.g. ANC-1, ANC-2 for ANC type encounter types']
+  	"max_visit_date_time" timestamp  [note: 'Date after which the encounter expires']
   	"organisation_id" integer  [default: 1, ref: > organisation.id]
-  	"cancel_date_time" timestamp
-  	"cancel_observations" jsonb
+  	"cancel_date_time" timestamp [note: 'DateTime when this scheduled encounter was cancelled']
+  	"cancel_observations" jsonb [note: 'Observations made when cancelling the encounter. For internal structure of the observations - https://dash.readme.io/project/avni/v2.0/docs/observation-data-model']
   	"audit_id" integer   [ref: > audit.id]
   	"is_voided" boolean  [default: false]
-  	"encounter_location" point
-  	"cancel_location" point
+  	"encounter_location" point [note: 'Geolocation of where the encounter took place']
+  	"cancel_location" point [note: 'Geolocation of where the cancellation of encounter took place']
   	"legacy_id" varchar
   }
 
@@ -655,8 +692,8 @@ Table "individual" {
   	"program_id" smallint [ref: > program.id]
   	"individual_id" bigint [ref: > individual.id]
   	"program_outcome_id" smallint [note: 'Unused column']
-  	"observations" jsonb
-  	"program_exit_observations" jsonb
+  	"observations" jsonb [note: 'Please check here - https://dash.readme.io/project/avni/v2.0/docs/observation-data-model']
+  	"program_exit_observations" jsonb [note: 'Please check here - https://dash.readme.io/project/avni/v2.0/docs/observation-data-model']
   	"enrolment_date_time" timestamp
   	"program_exit_date_time" timestamp
   	"uuid" varchar(255)
@@ -664,8 +701,8 @@ Table "individual" {
   	"organisation_id" integer  [default: 1, ref: > organisation.id]
   	"audit_id" integer   [ref: > audit.id]
   	"is_voided" boolean  [default: false]
-  	"enrolment_location" point
-  	"exit_location" point
+  	"enrolment_location" point [note: 'Geolocation of where the enrolment took place']
+  	"exit_location" point [note: 'Geolocation of where the enrolment exit took place']
   	"legacy_id" varchar
   }
 
@@ -675,13 +712,14 @@ Table "individual" {
  	"individual_a_id" bigint [ref: > individual.id]
  	"individual_b_id" bigint [ref: > individual.id]
  	"relationship_type_id" smallint [ref: > individual_relationship_type.id]
- 	"enter_date_time" timestamp
- 	"exit_date_time" timestamp
- 	"exit_observations" jsonb
+ 	"enter_date_time" timestamp [note: 'When the relationship between two individuals was established']
+ 	"exit_date_time" timestamp [note: 'When the relationship between two individuals was ended']
+ 	"exit_observations" jsonb [note: 'Data captured in forms when exiting the relationship. For internal structure of the observations - https://dash.readme.io/project/avni/v2.0/docs/observation-data-model']
  	"is_voided" boolean  [default: false]
  	"organisation_id" integer [ref: > organisation.id]
  	"version" integer
  	"audit_id" integer   [ref: > audit.id]
+ 	Note: 'Relationship between two individuals/subjects'
  }
 
 TableGroup "Transaction data" {

@@ -16,4 +16,5 @@ generate-dbml-from-db:
 	pg-to-dbml -c postgresql://vsingh:password@localhost:5432 --db=openchs -s public -o=.
 
 create-dbdocs-view:
+	echo main-database | pbcopy
 	dbdocs build ./avni.dbml
