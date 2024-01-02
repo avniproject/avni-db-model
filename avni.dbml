@@ -6,22 +6,450 @@
  	"last_modified_by_id" bigint [ref: > users.id]
  	"created_date_time" timestamp
  	"last_modified_date_time" timestamp
- 	Note: 'A common table for audit information of all other tables - except a few where the table themselves keep the audit information. It is not an audit log of all changes over the life time of a table row - rather it is only creation and last modification information.'
+ 	Note: 'Deprecated - A common table for audit information of all other tables - except a few where the table themselves keep the audit information. It is not an audit log of all changes over the life time of a table row - rather it is only creation and last modification information.'
  }
 
+// Task
+
+Table "task" {
+ 	"id" integer
+ 	"organisation_id" integer
+ 	"uuid" varchar(255) [default: `uuid_generate_v4()`]
+ 	"is_voided" boolean  [default: false]
+ 	"version" integer
+ 	"created_by_id" bigint
+ 	"last_modified_by_id" bigint
+ 	"created_date_time" timestamp
+ 	"last_modified_date_time" timestamp
+ 	"legacy_id" varchar
+ 	"name" text
+ 	"task_status_id" integer
+ 	"scheduled_on" timestamp
+ 	"completed_on" timestamp
+ 	"assigned_user_id" integer
+ 	"metadata" jsonb
+ 	"subject_id" bigint
+ 	"observations" jsonb
+ 	"task_type_id" integer
+ 	"manual_update_history" text
+ }
+
+ Table "task_status" {
+ 	"id" integer
+ 	"organisation_id" integer
+ 	"uuid" varchar(255) [default: `uuid_generate_v4()`]
+ 	"is_voided" boolean  [default: false]
+ 	"version" integer
+ 	"created_by_id" bigint
+ 	"last_modified_by_id" bigint
+ 	"created_date_time" timestamp
+ 	"last_modified_date_time" timestamp
+ 	"name" text
+ 	"task_type_id" integer
+ 	"is_terminal" boolean
+ }
+
+ Table "task_type" {
+ 	"id" integer
+ 	"organisation_id" integer
+ 	"uuid" varchar(255) [default: `uuid_generate_v4()`]
+ 	"is_voided" boolean  [default: false]
+ 	"version" integer
+ 	"created_by_id" bigint
+ 	"last_modified_by_id" bigint
+ 	"created_date_time" timestamp
+ 	"last_modified_date_time" timestamp
+ 	"name" text
+ 	"type" text
+ 	"metadata_search_fields" ARRAY
+ }
+
+ Table "task_unassignment" {
+ 	"id" integer
+ 	"organisation_id" integer
+ 	"uuid" varchar(255) [default: `uuid_generate_v4()`]
+ 	"is_voided" boolean  [default: false]
+ 	"version" integer
+ 	"created_by_id" bigint
+ 	"last_modified_by_id" bigint
+ 	"created_date_time" timestamp
+ 	"last_modified_date_time" timestamp
+ 	"task_id" bigint
+ 	"unassigned_user_id" integer
+ }
+
+ TableGroup "Task (including txn data)" {
+      task
+      task_status
+      task_type
+      task_unassignment
+    }
+
+// Messaging
+Table "manual_message" {
+ 	"id" integer
+ 	"uuid" varchar(255)
+ 	"organisation_id" integer
+ 	"is_voided" boolean  [default: false]
+ 	"message_template_id" text
+ 	"parameters" ARRAY
+ 	"version" integer
+ 	"created_by_id" bigint
+ 	"last_modified_by_id" bigint
+ 	"created_date_time" timestamp
+ 	"last_modified_date_time" timestamp
+ 	"next_trigger_details" json
+ }
+
+Table "message_receiver" {
+ 	"id" integer
+ 	"uuid" varchar(255)
+ 	"receiver_type" text
+ 	"organisation_id" integer
+ 	"is_voided" boolean  [default: false]
+ 	"external_id" text
+ 	"created_by_id" bigint
+ 	"last_modified_by_id" bigint
+ 	"created_date_time" timestamp
+ 	"last_modified_date_time" timestamp
+ 	"version" integer
+ 	"receiver_id" integer
+ }
+
+ Table "message_request_queue" {
+ 	"id" integer
+ 	"uuid" varchar(255)
+ 	"organisation_id" integer
+ 	"message_rule_id" bigint
+ 	"message_receiver_id" bigint
+ 	"scheduled_date_time" timestamp
+ 	"delivered_date_time" timestamp
+ 	"delivery_status" text
+ 	"is_voided" boolean  [default: false]
+ 	"created_by_id" bigint
+ 	"last_modified_by_id" bigint
+ 	"created_date_time" timestamp
+ 	"last_modified_date_time" timestamp
+ 	"version" integer
+ 	"entity_id" integer
+ 	"manual_message_id" bigint
+ }
+
+ Table "message_rule" {
+ 	"id" integer
+ 	"uuid" varchar(255)
+ 	"name" text
+ 	"message_rule" text
+ 	"schedule_rule" text
+ 	"organisation_id" integer
+ 	"is_voided" boolean  [default: false]
+ 	"entity_type" text
+ 	"message_template_id" text
+ 	"version" integer
+ 	"created_by_id" bigint
+ 	"last_modified_by_id" bigint
+ 	"created_date_time" timestamp
+ 	"last_modified_date_time" timestamp
+ 	"entity_type_id" integer
+ 	"receiver_type" text
+ }
+
+ Table "msg91_config" {
+ 	"id" integer
+ 	"uuid" varchar(255)
+ 	"auth_key" varchar(255)
+ 	"otp_sms_template_id" varchar(255)
+ 	"otp_length" smallint
+ 	"organisation_id" integer
+ 	"audit_id" integer
+ 	"is_voided" boolean  [default: false]
+ 	"version" integer
+ 	"created_by_id" bigint
+ 	"last_modified_by_id" bigint
+ 	"created_date_time" timestamp
+ 	"last_modified_date_time" timestamp
+ }
+
+Table "news" {
+ 	"id" integer
+ 	"organisation_id" bigint
+ 	"uuid" varchar(255)
+ 	"title" text
+ 	"content" text
+ 	"contenthtml" text
+ 	"hero_image" text
+ 	"published_date" timestamp
+ 	"is_voided" boolean  [default: false]
+ 	"audit_id" bigint
+ 	"version" bigint  [default: 0]
+ 	"created_by_id" bigint
+ 	"last_modified_by_id" bigint
+ 	"created_date_time" timestamp
+ 	"last_modified_date_time" timestamp
+ }
+
+ TableGroup "Messaging" {
+     manual_message
+     message_receiver
+     message_request_queue
+     message_rule
+     msg91_config
+     news
+   }
+
+// Misc
+Table "external_system_config" {
+ 	"id" integer
+ 	"organisation_id" integer
+ 	"uuid" varchar(255) [default: `uuid_generate_v4()`]
+ 	"is_voided" boolean  [default: false]
+ 	"version" integer
+ 	"created_by_id" bigint
+ 	"last_modified_by_id" bigint
+ 	"created_date_time" timestamp
+ 	"last_modified_date_time" timestamp
+ 	"system_name" varchar(255)
+ 	"config" jsonb
+ }
+
+// Documentation
+Table "documentation" {
+ 	"id" integer
+ 	"uuid" varchar(255)
+ 	"name" text
+ 	"organisation_id" integer
+ 	"is_voided" boolean  [default: false]
+ 	"version" integer
+ 	"created_by_id" bigint
+ 	"last_modified_by_id" bigint
+ 	"created_date_time" timestamp
+ 	"last_modified_date_time" timestamp
+ 	"parent_id" integer
+ }
+
+ Table "documentation_item" {
+ 	"id" integer
+ 	"uuid" varchar(255)
+ 	"documentation_id" integer
+ 	"language" text
+ 	"content" text
+ 	"contenthtml" text
+ 	"organisation_id" integer
+ 	"is_voided" boolean  [default: false]
+ 	"version" integer
+ 	"created_by_id" bigint
+ 	"last_modified_by_id" bigint
+ 	"created_date_time" timestamp
+ 	"last_modified_date_time" timestamp
+ }
+
+// Comment
+Table "comment" {
+ 	"id" integer
+ 	"organisation_id" bigint
+ 	"uuid" varchar(255)
+ 	"text" text
+ 	"subject_id" bigint
+ 	"is_voided" boolean  [default: false]
+ 	"audit_id" bigint
+ 	"version" bigint  [default: 0]
+ 	"comment_thread_id" bigint
+ 	"created_by_id" bigint
+ 	"last_modified_by_id" bigint
+ 	"created_date_time" timestamp
+ 	"last_modified_date_time" timestamp
+ }
+
+ Table "comment_thread" {
+ 	"id" integer
+ 	"organisation_id" bigint
+ 	"uuid" varchar(255)
+ 	"status" text
+ 	"open_date_time" timestamp
+ 	"resolved_date_time" timestamp
+ 	"is_voided" boolean  [default: false]
+ 	"audit_id" bigint
+ 	"version" bigint  [default: 0]
+ 	"created_by_id" bigint
+ 	"last_modified_by_id" bigint
+ 	"created_date_time" timestamp
+ 	"last_modified_date_time" timestamp
+ }
+
+// offline/mobile dashboard
+Table "dashboard" {
+ 	"id" integer
+ 	"uuid" varchar(255)
+ 	"name" varchar(255)
+ 	"description" text
+ 	"is_voided" boolean  [default: false]
+ 	"version" integer
+ 	"organisation_id" integer
+ 	"audit_id" integer
+ 	"created_by_id" bigint
+ 	"last_modified_by_id" bigint
+ 	"created_date_time" timestamp
+ 	"last_modified_date_time" timestamp
+ }
+
+ Table "dashboard_card_mapping" {
+ 	"id" integer
+ 	"uuid" varchar(255)
+ 	"dashboard_id" bigint
+ 	"card_id" bigint
+ 	"display_order" number
+ 	"is_voided" boolean  [default: false]
+ 	"version" integer
+ 	"organisation_id" integer
+ 	"audit_id" integer
+ 	"created_by_id" bigint
+ 	"last_modified_by_id" bigint
+ 	"created_date_time" timestamp
+ 	"last_modified_date_time" timestamp
+ }
+
+ Table "dashboard_filter" {
+ 	"id" integer
+ 	"dashboard_id" integer
+ 	"filter_config" jsonb
+ 	"uuid" varchar(255)
+ 	"organisation_id" integer
+ 	"is_voided" boolean  [default: false]
+ 	"version" integer
+ 	"created_by_id" bigint
+ 	"last_modified_by_id" bigint
+ 	"created_date_time" timestamp
+ 	"last_modified_date_time" timestamp
+ 	"name" varchar(255)
+ }
+
+ Table "dashboard_section" {
+ 	"id" integer
+ 	"uuid" text
+ 	"name" text
+ 	"description" text
+ 	"dashboard_id" bigint
+ 	"view_type" text
+ 	"display_order" number
+ 	"is_voided" boolean  [default: false]
+ 	"version" integer
+ 	"organisation_id" bigint
+ 	"audit_id" bigint
+ 	"created_by_id" bigint
+ 	"last_modified_by_id" bigint
+ 	"created_date_time" timestamp
+ 	"last_modified_date_time" timestamp
+ }
+
+ Table "dashboard_section_card_mapping" {
+ 	"id" integer
+ 	"uuid" text
+ 	"dashboard_section_id" bigint
+ 	"card_id" bigint
+ 	"display_order" number
+ 	"is_voided" boolean  [default: false]
+ 	"version" integer
+ 	"organisation_id" bigint
+ 	"audit_id" bigint
+ 	"created_by_id" bigint
+ 	"last_modified_by_id" bigint
+ 	"created_date_time" timestamp
+ 	"last_modified_date_time" timestamp
+ }
+
+ Table "standard_report_card_type" {
+  	"id" integer
+  	"uuid" text
+  	"name" text
+  	"description" text
+  	"is_voided" boolean  [default: false]
+  	"created_date_time" timestamp
+  	"last_modified_date_time" timestamp
+  }
+
+ Table "group_dashboard" {
+  	"id" integer
+  	"uuid" text
+  	"organisation_id" bigint
+  	"is_primary_dashboard" boolean  [default: false]
+  	"audit_id" bigint
+  	"version" bigint  [default: 0]
+  	"group_id" bigint
+  	"dashboard_id" bigint
+  	"is_voided" boolean  [default: false]
+  	"created_by_id" bigint
+  	"last_modified_by_id" bigint
+  	"created_date_time" timestamp
+  	"last_modified_date_time" timestamp
+  }
+
+  Table "report_card" {
+   	"id" integer
+   	"uuid" varchar(255)
+   	"name" varchar(255)
+   	"query" text
+   	"description" text
+   	"colour" varchar(20)
+   	"is_voided" boolean  [default: false]
+   	"version" integer
+   	"organisation_id" integer
+   	"audit_id" integer
+   	"standard_report_card_type_id" bigint
+   	"icon_file_s3_key" text
+   	"created_by_id" bigint
+   	"last_modified_by_id" bigint
+   	"created_date_time" timestamp
+   	"last_modified_date_time" timestamp
+   }
+
+// ETL
+Table "table_metadata" {
+ 	"id" integer
+ 	"name" text
+ 	"type" text
+ 	"schema_name" text
+ 	"subject_type_uuid" varchar(255)
+ 	"program_uuid" varchar(255)
+ 	"encounter_type_uuid" varchar(255)
+ 	"form_uuid" varchar(255)
+ 	"group_subject_type_uuid" varchar(255)
+ 	"member_subject_type_uuid" varchar(255)
+ 	"repeatable_question_group_concept_uuid" varchar(255)
+ }
+
+Table "column_metadata" {
+ 	"id" integer
+ 	"table_id" integer
+ 	"name" text
+ 	"type" text
+ 	"concept_id" integer
+ 	"concept_type" text
+ 	"concept_uuid" varchar(255)
+ 	"schema_name" text
+ 	"parent_concept_uuid" varchar(255)
+ }
+
+ Table "scheduled_job_run" {
+  	"id" integer
+  	"job_name" varchar(255)
+  	"started_at" timestamp
+  	"ended_at" timestamp
+  	"error_message" text
+  	"success" boolean
+  }
 
 // Account
 Table "account" {
- 	"id" integer  [default: `nextval('account_id_seq'::regclass)`] 
- 	"name" varchar(255)  
- } 
- 
+ 	"id" integer  [default: `nextval('account_id_seq'::regclass)`]
+ 	"name" varchar(255)
+ }
+
  Table "account_admin" {
- 	"id" integer  [default: `nextval('account_admin_id_seq'::regclass)`] 
- 	"name" varchar(255)  
+ 	"id" integer  [default: `nextval('account_admin_id_seq'::regclass)`]
+ 	"name" varchar(255)
  	"account_id" integer [ref: > account.id]
- 	"admin_id" integer   
- } 
+ 	"admin_id" integer
+ }
 
 TableGroup Account {
     account
@@ -69,13 +497,13 @@ TableGroup Organisation {
 // Work area / Location
 
  Table "address_level" {
- 	"id" integer  [default: `nextval('address_level_id_seq'::regclass)`] 
- 	"title" varchar(255)  
- 	"uuid" varchar(255)  
- 	"version" integer   
+ 	"id" integer  [default: `nextval('address_level_id_seq'::regclass)`]
+ 	"title" varchar(255)
+ 	"uuid" varchar(255)
+ 	"version" integer
  	"organisation_id" integer  [default: 1, ref: > organisation.id]
  	"audit_id" integer   [ref: > audit.id]
- 	"is_voided" boolean  [default: false] 
+ 	"is_voided" boolean  [default: false]
  	"type_id" integer [ref: > address_level_type.id]
  	"lineage" varchar [note: 'Postgres ltree data type. Since address levels can be hierarchical like district-block-village, this column helps in querying such information easy. This is semantically duplicate of parent_id based hierarchy.']
  	"parent_id" integer [ref: > address_level.id]
@@ -110,18 +538,6 @@ Table "catchment_address_mapping" {
  	"id" integer  [default: `nextval('catchment_address_mapping_id_seq'::regclass)`]
  	"catchment_id" bigint [ref: > catchment.id]
  	"addresslevel_id" bigint [ref: > address_level.id]
- }
-
- Table "facility" {
- 	"id" integer  [default: `nextval('facility_id_seq'::regclass)`]
- 	"uuid" varchar(255)
- 	"name" varchar(255)
- 	"address_id" bigint   [ref: > address_level.id]
- 	"is_voided" boolean  [default: false]
- 	"organisation_id" integer [ref: > organisation.id]
- 	"version" integer
- 	"audit_id" integer   [ref: > audit.id]
- 	Note: 'Users can be working in a facility. Facility table is not fully used in Avni and hence the design may change over time.'
  }
 
   Table "location_location_mapping" {
@@ -231,6 +647,12 @@ Table "user_facility_mapping" {
  	"uniq" boolean  [default: false]
  	"audit_id" integer   [ref: > audit.id]
  	Note: "A concept when its data type is 'Coded' can have answers which are other concepts."
+ }
+
+Table "decision_concept" {
+ 	"id" integer
+ 	"concept_id" bigint
+ 	"form_id" bigint
  }
 
  Table "program" {
@@ -502,58 +924,58 @@ Table "individual_relation_gender_mapping" {
 // Checklist
 
  Table "checklist" {
- 	"id" integer  [default: `nextval('checklist_id_seq'::regclass)`] 
+ 	"id" integer  [default: `nextval('checklist_id_seq'::regclass)`]
  	"program_enrolment_id" bigint [ref: > program_enrolment.id]
- 	"uuid" varchar(255)  
- 	"version" integer   
- 	"base_date" timestamp   
- 	"organisation_id" integer  [default: 1 ,ref: > organisation.id] 
+ 	"uuid" varchar(255)
+ 	"version" integer
+ 	"base_date" timestamp
+ 	"organisation_id" integer  [default: 1 ,ref: > organisation.id]
  	"audit_id" integer   [ref: > audit.id]
- 	"is_voided" boolean  [default: false] 
+ 	"is_voided" boolean  [default: false]
  	"checklist_detail_id" integer   [ref: > checklist_detail.id]
- } 
- 
+ }
+
  Table "checklist_detail" {
- 	"id" smallint  [default: `nextval('checklist_detail_id_seq'::regclass)`] 
- 	"uuid" varchar(255)  
- 	"version" integer   
+ 	"id" smallint  [default: `nextval('checklist_detail_id_seq'::regclass)`]
+ 	"uuid" varchar(255)
+ 	"version" integer
  	"audit_id" integer   [ref: > audit.id]
- 	"name" varchar   
- 	"is_voided" boolean  [default: false] 
+ 	"name" varchar
+ 	"is_voided" boolean  [default: false]
  	"organisation_id" integer   [ref: > organisation.id]
- } 
- 
+ }
+
  Table "checklist_item" {
- 	"id" integer  [default: `nextval('checklist_item_id_seq'::regclass)`] 
- 	"completion_date" timestamp   
+ 	"id" integer  [default: `nextval('checklist_item_id_seq'::regclass)`]
+ 	"completion_date" timestamp
  	"checklist_id" bigint   [ref: > checklist.id]
- 	"uuid" varchar(255)  
- 	"version" integer   
- 	"organisation_id" integer  [default: 1 ,ref: > organisation.id] 
+ 	"uuid" varchar(255)
+ 	"version" integer
+ 	"organisation_id" integer  [default: 1 ,ref: > organisation.id]
  	"audit_id" integer   [ref: > audit.id]
- 	"is_voided" boolean  [default: false] 
- 	"observations" jsonb   
+ 	"is_voided" boolean  [default: false]
+ 	"observations" jsonb
  	"checklist_item_detail_id" integer   [ref: > checklist_item_detail.id]
- } 
- 
+ }
+
  Table "checklist_item_detail" {
- 	"id" smallint  [default: `nextval('checklist_item_detail_id_seq'::regclass)`] 
- 	"uuid" varchar(255)  
- 	"version" integer   
+ 	"id" smallint  [default: `nextval('checklist_item_detail_id_seq'::regclass)`]
+ 	"uuid" varchar(255)
+ 	"version" integer
  	"audit_id" integer   [ref: > audit.id]
  	"form_id" integer   [ref: > form.id]
  	"concept_id" integer   [ref: > concept.id]
  	"checklist_detail_id" integer   [ref: > checklist_detail.id]
 // 	"status" jsonb  [default: '{}'::jsonb]
     "status" jsonb
- 	"is_voided" boolean  [default: false] 
+ 	"is_voided" boolean  [default: false]
  	"organisation_id" integer   [ref: > organisation.id]
- 	"dependent_on" integer   
- 	"schedule_on_expiry_of_dependency" boolean  [default: false] 
- 	"min_days_from_start_date" smallint   
- 	"min_days_from_dependent" integer   
- 	"expires_after" integer   
- } 
+ 	"dependent_on" integer
+ 	"schedule_on_expiry_of_dependency" boolean  [default: false]
+ 	"min_days_from_start_date" smallint
+ 	"min_days_from_dependent" integer
+ 	"expires_after" integer
+ }
 
 TableGroup Checklist {
     checklist
@@ -566,11 +988,11 @@ TableGroup Checklist {
 // Rules
 
  Table "deps_saved_ddl" {
- 	"deps_id" integer  [default: `nextval('deps_saved_ddl_deps_id_seq'::regclass)`] 
- 	"deps_view_schema" varchar(255)  
- 	"deps_view_name" varchar(255)  
- 	"deps_ddl_to_run" text   
- } 
+ 	"deps_id" integer  [default: `nextval('deps_saved_ddl_deps_id_seq'::regclass)`]
+ 	"deps_view_schema" varchar(255)
+ 	"deps_view_name" varchar(255)
+ 	"deps_ddl_to_run" text
+ }
 
 Table "rule" {
  	"id" smallint  [default: `nextval('rule_id_seq'::regclass)`]
@@ -610,24 +1032,24 @@ TableGroup Rules {
 // Transaction data
 
  Table "encounter" {
- 	"id" integer  [default: `nextval('encounter_id_seq'::regclass)`] 
+ 	"id" integer  [default: `nextval('encounter_id_seq'::regclass)`]
  	"observations" jsonb [note: 'Please check here - https://dash.readme.io/project/avni/v2.0/docs/observation-data-model']
- 	"encounter_date_time" timestamp   
- 	"encounter_type_id" integer [ref: > encounter_type.id]   
+ 	"encounter_date_time" timestamp
+ 	"encounter_type_id" integer [ref: > encounter_type.id]
  	"individual_id" integer   [ref: > individual.id]
- 	"uuid" varchar(255)  
- 	"version" integer   
- 	"organisation_id" integer  [default: 1, ref: > organisation.id] 
- 	"is_voided" boolean  [default: false] 
- 	"audit_id" integer   [ref: > audit.id]   
+ 	"uuid" varchar(255)
+ 	"version" integer
+ 	"organisation_id" integer  [default: 1, ref: > organisation.id]
+ 	"is_voided" boolean  [default: false]
+ 	"audit_id" integer   [ref: > audit.id]
  	"encounter_location" point [note: 'Geolocation of where the encounter took place']
  	"earliest_visit_date_time" timestamp   [note: 'Scheduled date of the encounter. This is nullable because the user can perform non scheduled encounters also.']
  	"max_visit_date_time" timestamp   [note: 'Date after which the encounter expires']
  	"cancel_date_time" timestamp  [note: 'DateTime when this scheduled encounter was cancelled']
  	"cancel_observations" jsonb  [note: 'Observations made when cancelling the encounter. Please check here - https://dash.readme.io/project/avni/v2.0/docs/observation-data-model']
  	"cancel_location" point [note: 'Geolocation of where the cancellation took place']
- 	"name" text   
- 	"legacy_id" varchar   
+ 	"name" text
+ 	"legacy_id" varchar
  }
 
   Table "group_subject" {
@@ -722,6 +1144,59 @@ Table "individual" {
  	Note: 'Relationship between two individuals/subjects'
  }
 
+ Table "subject_migration" {
+  	"id" integer
+  	"uuid" varchar(255)
+  	"individual_id" integer
+  	"old_address_level_id" integer
+  	"new_address_level_id" integer
+  	"organisation_id" integer
+  	"audit_id" integer
+  	"is_voided" boolean  [default: false]
+  	"version" integer
+  	"created_by_id" bigint
+  	"last_modified_by_id" bigint
+  	"created_date_time" timestamp
+  	"last_modified_date_time" timestamp
+  	"old_sync_concept_1_value" text
+  	"new_sync_concept_1_value" text
+  	"old_sync_concept_2_value" text
+  	"new_sync_concept_2_value" text
+  	"subject_type_id" integer
+  	"manual_update_history" text
+  }
+
+  Table "subject_program_eligibility" {
+   	"id" integer
+   	"organisation_id" integer
+   	"uuid" varchar(255) [default: `uuid_generate_v4()`]
+   	"is_voided" boolean  [default: false]
+   	"version" integer
+   	"created_by_id" bigint
+   	"last_modified_by_id" bigint
+   	"created_date_time" timestamp
+   	"last_modified_date_time" timestamp
+   	"subject_id" bigint
+   	"program_id" integer
+   	"is_eligible" boolean
+   	"check_date" timestamp
+   	"observations" jsonb
+   }
+
+   Table "user_subject_assignment" {
+    	"id" integer
+    	"uuid" varchar(255)
+    	"user_id" integer
+    	"subject_id" integer
+    	"organisation_id" integer
+    	"is_voided" boolean  [default: false]
+    	"version" integer
+    	"created_by_id" bigint
+    	"last_modified_by_id" bigint
+    	"created_date_time" timestamp
+    	"last_modified_date_time" timestamp
+    }
+
 TableGroup "Transaction data" {
     individual
     program_enrolment
@@ -729,9 +1204,13 @@ TableGroup "Transaction data" {
     program_encounter
     group_subject
     individual_relationship
+    subject_migration
+    subject_program_eligibility
+    task
+    task_status
 }
 
- 
+
 // Access Control
 
   Table "privilege" {
@@ -747,8 +1226,8 @@ TableGroup "Transaction data" {
 
 
  Table "group_privilege" {
- 	"id" integer  [default: `nextval('group_privilege_id_seq'::regclass)`] 
- 	"uuid" varchar(255)  
+ 	"id" integer  [default: `nextval('group_privilege_id_seq'::regclass)`]
+ 	"uuid" varchar(255)
  	"group_id" integer [ref: > groups.id]
  	"privilege_id" integer   [ref: > privilege.id]
  	"subject_type_id" integer   [ref: > subject_type.id]
@@ -756,11 +1235,11 @@ TableGroup "Transaction data" {
  	"program_encounter_type_id" integer   [ref: > encounter_type.id]
  	"encounter_type_id" integer   [ref: > encounter_type.id]
  	"checklist_detail_id" integer   [ref: > checklist_detail.id]
- 	"allow" boolean  [default: false] 
- 	"is_voided" boolean  [default: false] 
- 	"version" integer   
+ 	"allow" boolean  [default: false]
+ 	"is_voided" boolean  [default: false]
+ 	"version" integer
  	"organisation_id" integer   [ref: > organisation.id]
- 	"audit_id" integer   [ref: > audit.id]   
+ 	"audit_id" integer   [ref: > audit.id]
  }
 
  Table "groups" {
@@ -773,7 +1252,7 @@ TableGroup "Transaction data" {
    	"audit_id" integer   [ref: > audit.id]
    	"has_all_privileges" boolean  [default: false]
    }
- 
+
 TableGroup "Access Control" {
     groups
     privilege
@@ -785,52 +1264,52 @@ TableGroup "Access Control" {
 // Identifiers
 
  Table "identifier_assignment" {
- 	"id" integer  [default: `nextval('identifier_assignment_id_seq'::regclass)`] 
- 	"uuid" varchar(255)  
+ 	"id" integer  [default: `nextval('identifier_assignment_id_seq'::regclass)`]
+ 	"uuid" varchar(255)
  	"identifier_source_id" integer   [ref: > identifier_source.id]
- 	"identifier" text   
- 	"assignment_order" integer   
+ 	"identifier" text
+ 	"assignment_order" integer
  	"assigned_to_user_id" integer   [ref: > users.id]
  	"individual_id" integer   [ref: > individual.id]
  	"program_enrolment_id" integer   [ref: > program_enrolment.id]
- 	"version" integer   
- 	"is_voided" boolean  [default: false] 
- 	"organisation_id" integer  [default: 1, ref: > organisation.id] 
- 	"audit_id" integer   [ref: > audit.id]   
- } 
- 
+ 	"version" integer
+ 	"is_voided" boolean  [default: false]
+ 	"organisation_id" integer  [default: 1, ref: > organisation.id]
+ 	"audit_id" integer   [ref: > audit.id]
+ }
+
  Table "identifier_source" {
- 	"id" integer  [default: `nextval('identifier_source_id_seq'::regclass)`] 
- 	"uuid" varchar(255)  
- 	"name" varchar(255)  
- 	"type" text   
+ 	"id" integer  [default: `nextval('identifier_source_id_seq'::regclass)`]
+ 	"uuid" varchar(255)
+ 	"name" varchar(255)
+ 	"type" text
  	"catchment_id" integer   [ref: > catchment.id]
  	"facility_id" integer   [ref: > facility.id]
- 	"minimum_balance" integer  [default: 20] 
- 	"batch_generation_size" integer  [default: 100] 
+ 	"minimum_balance" integer  [default: 20]
+ 	"batch_generation_size" integer  [default: 100]
  	"options" jsonb  [default: '{}']
- 	"version" integer   
- 	"is_voided" boolean  [default: false] 
- 	"organisation_id" integer  [default: 1, ref: > organisation.id] 
- 	"audit_id" integer   [ref: > audit.id]   
- 	"min_length" integer  [default: 0] 
- 	"max_length" integer  [default: 0] 
- } 
- 
+ 	"version" integer
+ 	"is_voided" boolean  [default: false]
+ 	"organisation_id" integer  [default: 1, ref: > organisation.id]
+ 	"audit_id" integer   [ref: > audit.id]
+ 	"min_length" integer  [default: 0]
+ 	"max_length" integer  [default: 0]
+ }
+
  Table "identifier_user_assignment" {
- 	"id" integer  [default: `nextval('identifier_user_assignment_id_seq'::regclass)`] 
- 	"uuid" varchar(255)  
+ 	"id" integer  [default: `nextval('identifier_user_assignment_id_seq'::regclass)`]
+ 	"uuid" varchar(255)
  	"identifier_source_id" integer   [ref: > identifier_source.id]
  	"assigned_to_user_id" integer   [ref: > users.id]
- 	"identifier_start" text   
- 	"identifier_end" text   
- 	"last_assigned_identifier" text   
- 	"version" integer   
- 	"is_voided" boolean  [default: false] 
- 	"organisation_id" integer  [default: 1, ref: > organisation.id] 
- 	"audit_id" integer   [ref: > audit.id]   
- } 
- 
+ 	"identifier_start" text
+ 	"identifier_end" text
+ 	"last_assigned_identifier" text
+ 	"version" integer
+ 	"is_voided" boolean  [default: false]
+ 	"organisation_id" integer  [default: 1, ref: > organisation.id]
+ 	"audit_id" integer   [ref: > audit.id]
+ }
+
 TableGroup "Auto generated identifiers" {
     identifier_assignment
     identifier_source
@@ -839,31 +1318,48 @@ TableGroup "Auto generated identifiers" {
 
 
 // Application settings
- 
+
+Table "menu_item" {
+ 	"id" integer
+ 	"organisation_id" integer
+ 	"uuid" varchar(255) [default: `uuid_generate_v4()`]
+ 	"is_voided" boolean  [default: false]
+ 	"version" integer
+ 	"created_by_id" bigint
+ 	"last_modified_by_id" bigint
+ 	"created_date_time" timestamp
+ 	"last_modified_date_time" timestamp
+ 	"display_key" varchar(255)
+ 	"type" varchar(100)
+ 	"menu_group" varchar(255)
+ 	"icon" varchar(255)
+ 	"link_function" varchar(10000)
+ }
+
  Table "organisation_config" {
- 	"id" integer  [default: `nextval('organisation_config_id_seq'::regclass)`] 
- 	"uuid" varchar(255)  
- 	"organisation_id" bigint   
- 	"settings" jsonb   
- 	"audit_id" bigint   
- 	"version" integer  [default: 1] 
- 	"is_voided" boolean  [default: false] 
- 	"worklist_updation_rule" text   
+ 	"id" integer  [default: `nextval('organisation_config_id_seq'::regclass)`]
+ 	"uuid" varchar(255)
+ 	"organisation_id" bigint
+ 	"settings" jsonb
+ 	"audit_id" bigint
+ 	"version" integer  [default: 1]
+ 	"is_voided" boolean  [default: false]
+ 	"worklist_updation_rule" text
  }
 
 
 // Translations
 
  Table "platform_translation" {
- 	"id" integer  [default: `nextval('platform_translation_id_seq'::regclass)`] 
- 	"uuid" varchar(255)  
- 	"translation_json" jsonb   
- 	"is_voided" boolean  [default: false] 
- 	"platform" varchar(255)  
- 	"language" varchar(255)  
- 	"created_date_time" timestamp   
- 	"last_modified_date_time" timestamp   
- } 
+ 	"id" integer  [default: `nextval('platform_translation_id_seq'::regclass)`]
+ 	"uuid" varchar(255)
+ 	"translation_json" jsonb
+ 	"is_voided" boolean  [default: false]
+ 	"platform" varchar(255)
+ 	"language" varchar(255)
+ 	"created_date_time" timestamp
+ 	"last_modified_date_time" timestamp
+ }
 
  Table "translation" {
  	"id" integer  [default: `nextval('translation_id_seq'::regclass)`]
@@ -886,50 +1382,50 @@ TableGroup "Translations" {
 
 // Telemetry and logs
  Table "rule_failure_log" {
- 	"id" integer  [default: `nextval('rule_failure_log_id_seq'::regclass)`] 
- 	"uuid" varchar(255)  
- 	"form_id" varchar(255)  
- 	"rule_type" varchar(255)  
- 	"entity_type" varchar(255)  
- 	"entity_id" varchar(255)  
- 	"error_message" varchar(255)  
- 	"stacktrace" text   
- 	"source" varchar(255)  
- 	"audit_id" integer   [ref: > audit.id]   
- 	"is_voided" boolean  [default: false] 
- 	"version" integer   
+ 	"id" integer  [default: `nextval('rule_failure_log_id_seq'::regclass)`]
+ 	"uuid" varchar(255)
+ 	"form_id" varchar(255)
+ 	"rule_type" varchar(255)
+ 	"entity_type" varchar(255)
+ 	"entity_id" varchar(255)
+ 	"error_message" varchar(255)
+ 	"stacktrace" text
+ 	"source" varchar(255)
+ 	"audit_id" integer   [ref: > audit.id]
+ 	"is_voided" boolean  [default: false]
+ 	"version" integer
  	"organisation_id" bigint   [ref: > organisation.id]
- } 
- 
+ }
+
  Table "rule_failure_telemetry" {
- 	"id" integer  [default: `nextval('rule_failure_telemetry_id_seq'::regclass)`] 
- 	"uuid" varchar(255)  
+ 	"id" integer  [default: `nextval('rule_failure_telemetry_id_seq'::regclass)`]
+ 	"uuid" varchar(255)
  	"user_id" integer   [ref: > users.id]
  	"organisation_id" bigint   [ref: > organisation.id]
- 	"version" integer  [default: 1] 
- 	"rule_uuid" varchar(255)  
- 	"individual_uuid" varchar(255)  
- 	"error_message" varchar(255)  
- 	"stacktrace" text   
- 	"error_date_time" timestamp   
- 	"close_date_time" timestamp   
- 	"is_closed" boolean  [default: false] 
+ 	"version" integer  [default: 1]
+ 	"rule_uuid" varchar(255)
+ 	"individual_uuid" varchar(255)
+ 	"error_message" varchar(255)
+ 	"stacktrace" text
+ 	"error_date_time" timestamp
+ 	"close_date_time" timestamp
+ 	"is_closed" boolean  [default: false]
  	"audit_id" bigint   [ref: > audit.id]
  }
- 
+
  Table "sync_telemetry" {
- 	"id" integer  [default: `nextval('sync_telemetry_id_seq'::regclass)`] 
- 	"uuid" varchar(255)  
+ 	"id" integer  [default: `nextval('sync_telemetry_id_seq'::regclass)`]
+ 	"uuid" varchar(255)
  	"user_id" integer   [ref: > users.id]
  	"organisation_id" bigint   [ref: > organisation.id]
- 	"version" integer  [default: 1] 
- 	"sync_status" varchar(255)  
- 	"sync_start_time" timestamp   
- 	"sync_end_time" timestamp   
- 	"entity_status" jsonb   
- 	"device_name" varchar(255)  
- 	"android_version" varchar(255)  
- 	"app_version" varchar(255)  
+ 	"version" integer  [default: 1]
+ 	"sync_status" varchar(255)
+ 	"sync_start_time" timestamp
+ 	"sync_end_time" timestamp
+ 	"entity_status" jsonb
+ 	"device_name" varchar(255)
+ 	"android_version" varchar(255)
+ 	"app_version" varchar(255)
  }
 
  Table "video_telemetric" {

@@ -1,6 +1,7 @@
 {
   "dependencies": {
-    "@dbml/cli": "^2.1.1",
-    "@polarislabs/pg-to-dbml": "^0.2.1"
+    "@dbml/cli": "^3.0.0",
+    "@polarislabs/pg-to-dbml": "^0.3.1",
+    "dbdocs": "^0.8.4"
   }
 }
