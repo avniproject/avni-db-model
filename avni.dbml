@@ -438,6 +438,15 @@ Table "column_metadata" {
   	"success" boolean
   }
 
+  Table "entity_sync_status" {
+   	"id" integer
+   	"db_user" text
+   	"table_metadata_id" integer
+   	"last_sync_time" timestamp
+   	"sync_status" text
+   	"schema_name" text
+   }
+
 // Account
 Table "account" {
  	"id" integer  [default: `nextval('account_id_seq'::regclass)`]
@@ -556,7 +565,6 @@ TableGroup "Work Area" {
     address_level_type
     catchment
     catchment_address_mapping
-    facility
     location_location_mapping
 }
 
@@ -601,7 +609,6 @@ Table "user_facility_mapping" {
  	"uuid" varchar(255)
  	"is_voided" boolean  [default: false]
  	"organisation_id" bigint [ref: > organisation.id]
- 	"facility_id" bigint [ref: > facility.id]
  	"user_id" bigint [ref: > users.id]
  }
 
@@ -1082,7 +1089,6 @@ Table "individual" {
  	"last_name" varchar(256)
  	"is_voided" boolean  [default: false]
  	"audit_id" integer   [ref: > audit.id]
- 	"facility_id" bigint [ref: > facility.id]
  	"registration_location" point [note: 'Geolocation of where the registration took place']
  	"subject_type_id" integer [ref: > subject_type.id]
  	"legacy_id" varchar
@@ -1206,8 +1212,6 @@ TableGroup "Transaction data" {
     individual_relationship
     subject_migration
     subject_program_eligibility
-    task
-    task_status
 }
 
 
@@ -1284,7 +1288,6 @@ TableGroup "Access Control" {
  	"name" varchar(255)
  	"type" text
  	"catchment_id" integer   [ref: > catchment.id]
- 	"facility_id" integer   [ref: > facility.id]
  	"minimum_balance" integer  [default: 20]
  	"batch_generation_size" integer  [default: 100]
  	"options" jsonb  [default: '{}']
